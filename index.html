@@ -59,6 +59,7 @@ h2{font-size:17px;font-weight:700}
 #stage3d canvas:active{cursor:grabbing}
 .viewbar{position:absolute;top:10px;inset-inline-start:10px;display:flex;flex-wrap:wrap;gap:6px}
 .viewbar button{all:unset;cursor:pointer;background:var(--stage-btn);color:var(--stage-ink);border:1px solid var(--steel-soft);border-radius:8px;padding:5px 11px;font-size:13px;font-weight:600}
+.viewbar button[aria-pressed="true"]{background:var(--brand);color:var(--on-brand);border-color:var(--brand)}
 .viewbar button:focus-visible{outline:2px solid var(--mark);outline-offset:2px}
 .viewhint{position:absolute;bottom:8px;inset-inline-end:12px;font-size:12.5px;color:var(--stage-ink);opacity:.7;pointer-events:none}
 .nogl{padding:40px 20px;text-align:center;color:var(--stage-ink)}
@@ -214,6 +215,7 @@ textarea.copy{width:100%;min-height:140px;font:13px/1.5 var(--f-body);margin-top
           <button type="button" data-v="top">מלמעלה</button>
           <button type="button" data-v="in" aria-label="הגדלה">＋</button>
           <button type="button" data-v="out" aria-label="הקטנה">−</button>
+          <button type="button" data-v="fill" id="fillbtn" aria-pressed="true" title="משקולות, כדורים ופלטות להמחשה בלבד">תכולה</button>
         </div>
         <div class="viewhint" id="viewhint">גוררים כדי לסובב</div>
         <svg class="wm" aria-hidden="true" viewBox="0 0 852.7 227.3" fill="currentColor"><path d="M24.3,202.5v-6.8H0v30.9h8.7V216h13.7v-6.8H8.8v-6.8h15.5V202.5z"/><rect x="138.8" y="195.8" width="8.7" height="30.9"/><path d="M270.9,226.7h8.7v-24h9.5v-6.9h-27.7v6.9h9.5V226.7z"/><path d="M423.7,195.8v16.5L410,195.8h-7.2v30.9h8.6v-16.5l13.7,16.5h7.2v-30.9H423.7z"/><path d="M557.6,219.9v-5.7h13.7v-6.5h-13.7v-5.2h15.6v-6.8h-24.3v30.9h24.8v-6.8h-16.1V219.9z"/><path d="M700,227.3c9.2,0,13.7-4.6,13.7-10c0-11.4-17.5-7.9-17.5-12.6c0-1.5,1.3-2.8,5-2.8c2.7,0,5.6,0.8,8.6,2.4 l2.7-6.5c-3.1-1.8-7.2-2.7-11.2-2.7c-9.2,0-13.7,4.5-13.7,10c0,11.5,17.6,7.9,17.6,12.8c0,1.5-1.4,2.5-5,2.5s-7.5-1.2-10.2-3 l-2.9,6.5C689.9,225.9,694.9,227.3,700,227.3z"/><path d="M839,227.3c9.2,0,13.7-4.6,13.7-10c0-11.4-17.5-7.9-17.5-12.6c0-1.5,1.3-2.8,5-2.8c2.7,0,5.6,0.8,8.6,2.4 l2.7-6.5c-3-1.8-7.2-2.7-11.2-2.7c-9.2,0-13.7,4.5-13.7,10c0,11.5,17.6,7.9,17.6,12.8c0,1.5-1.4,2.5-5,2.5s-7.5-1.2-10.2-3l-2.9,6.5 C828.9,225.9,834,227.3,839,227.3z"/><path fill-rule="evenodd" d="M62.1,3.7c0-2.1-1.7-3.7-3.7-3.7H3.7C1.7,0,0,1.7,0,3.7v164.4c0,2.1,1.7,3.7,3.7,3.7h54.7 c2.1,0,3.7-1.7,3.7-3.7C62.1,168.1,62.1,3.7,62.1,3.7z"/><path fill-rule="evenodd" d="M683.1,82.8c24.9,18.4,119.4,88.3,119.4,88.3c0.6,0.5,1.4,0.7,2.2,0.7H849c2.1,0,3.7-1.7,3.7-3.7V3.7 c0-2.1-1.7-3.7-3.7-3.7h-54.7c-2.1,0-3.7,1.7-3.7,3.7v85.7l-120-88.7C670,0.2,669.2,0,668.4,0h-43.7c-2.1,0-3.7,1.7-3.7,3.7v164.4 c0,2.1,1.7,3.7,3.7,3.7h54.7c2.1,0,3.7-1.7,3.7-3.7L683.1,82.8L683.1,82.8z"/><path fill-rule="evenodd" d="M118,0H90.7c-2,0-3.7,1.7-3.7,3.8v164.3c0,2.1,1.7,3.7,3.7,3.7h54.7c2.1,0,3.7-1.7,3.7-3.7V118h54.2l54.1,52.8 c0.7,0.7,1.6,1.1,2.6,1.1h70.5c1.5,0,2.9-0.9,3.4-2.3c0.6-1.4,0.2-3-0.8-4.1L284.5,118h2c18.1,0,32.8-14.7,32.8-32.8V32.7 c0-18.1-14.7-32.7-32.8-32.7H119.8C119.2,0,118.6,0,118,0L118,0z M258.5,52.2v13.7H149.2V52.2H258.5z"/><path fill-rule="evenodd" d="M463,0v50.9h-58V121h58v50.9h-86c-18.1,0-32.8-14.7-32.8-32.8V32.7c0-18,14.7-32.7,32.8-32.7H463z M476.5,0 h87.3c18.1,0,32.8,14.7,32.8,32.7V139c0,18.1-14.7,32.8-32.8,32.8h-87.3V121h59.3V50.9h-59.3V0z"/></svg>
@@ -612,6 +614,71 @@ function rigAccessories(PG, PX, free){
     else bars.slice(0, q).forEach(([r, j, t])=>t==='st' ? draw(barHost(r, 2*j), 109.2) : draw(barHost(r, 2*j+1), RIG.gaps[j]));
   }
 }
+/* ---------- תכולה למראית עין על המדפים (רומן, 16/11/2026: "כמו בתמונה") ----------
+   לא חלק מההזמנה ולא נכנס לרשימת החלקים. מדף קטלבלים ⇒ קטלבלים; משקולות יד ⇒ משקולות משושה בשורה, ניצבות למדף;
+   מדף כדורים עם מפרידים ⇒ פלטות עומדות, בלי מפרידים ⇒ כדורים. הגדלים קטנים כשהקומה שמעל נמוכה. */
+let FILL = true;
+const FILL_MAT = {};
+function fmat(hex, rough, metal){
+  const k = hex+'|'+(rough||0.8); if(FILL_MAT[k]) return FILL_MAT[k];
+  const m = new THREE.MeshStandardMaterial({color:hex, roughness:rough||0.8, metalness:metal||0}); m.userData.rgb = hexRgb(hex); m.color.convertSRGBToLinear(); return FILL_MAT[k] = m;
+}
+const FG = {};
+const fbox = (w,h,d) => FG['b'+w+h+d] || (FG['b'+w+h+d] = new THREE.BoxGeometry(w,h,d));
+const fcyl = (r,l,n) => FG['c'+r+'|'+l+'|'+(n||16)] || (FG['c'+r+'|'+l+'|'+(n||16)] = new THREE.CylinderGeometry(r,r,l,n||16));
+const fsph = r => FG['s'+r] || (FG['s'+r] = new THREE.SphereGeometry(r, 14, 10));
+const ftor = (R,r,arc) => FG['t'+R+'|'+r+'|'+(arc||0)] || (FG['t'+R+'|'+r+'|'+(arc||0)] = new THREE.TorusGeometry(R, r, 6, 14, arc || Math.PI*2));
+function fput(geo, mat, p, x, y, z, rx, ry, rz){ const m = new THREE.Mesh(geo, mat); m.position.set(x,y,z); m.rotation.set(rx||0, ry||0, rz||0); m.castShadow = m.receiveShadow = true; m.userData.fill = true; p.add(m); return m; }
+const PLATE_COL = ['#7d8084','#2e8b57','#e2b62a','#2f4b9a','#c7372f'];      /* 5 · 10 · 15 · 20 · 25 ק״ג */
+const KB_COL = ['#c7372f','#2e6b3f','#2f4b9a','#8a8d92','#e2b62a'];         /* קטלבלס תחרות, ואחריהם שחורים */
+function shelfFill(g, x, L, a, s, k, gap){
+  const blk = fmat('#1d1f22', 0.85), chrome = fmat('#c9ccd0', 0.35, 0.6);
+  const room = Math.max(18, gap - 4);
+  if(s.t==='KS'){
+    /* מגש ישר: הרצפה 5 ס״מ מתחת לציר (a+10), במרכז העומק z≈3 */
+    const n = Math.max(3, Math.floor(L/22)), step = L/n;
+    for(let i=0;i<n;i++){
+      const r = Math.min(8 + (i % 4)*1.3 + (i >= n/2 ? 1 : 0), (room - 10)/2.6), col = i < Math.min(4, n/2) ? fmat(KB_COL[i % KB_COL.length], 0.6) : blk;
+      const cx = x + step*(i+0.5), fy = a + 5, cy = fy + r*0.92;
+      fput(fsph(r), col, g, cx, cy, 3); fput(fcyl(r*0.62, 1.6), col, g, cx, fy + 0.8, 3);
+      fput(ftor(r*0.62, r*0.13, Math.PI), i < Math.min(4, n/2) ? chrome : blk, g, cx, cy + r*0.78, 3, 0, 0, 0);
+      [-1, 1].forEach(sd=>fput(fcyl(r*0.13, r*0.5, 8), i < Math.min(4, n/2) ? chrome : blk, g, cx + sd*r*0.62, cy + r*0.55, 3));
+    }
+  } else if(s.t==='DS'){
+    /* מגש מוטה כ-25°: בקומה התחתונה עולה לחזית, מעליה עולה לאחור. משקולת ניצבת למדף, בשיפוע המגש */
+    const back = k===0, tilt = Math.atan(0.458), zc = back ? 2 : -2, sy = a + 10 - 3.9;
+    const n = Math.max(3, Math.floor(L/19)), step = L/n;
+    for(let i=0;i<n;i++){
+      const f = i/(n-1||1), rh = Math.min(5 + f*3.4, (room - 6)/2.2), hl = 5 + f*4, cx = x + step*(i+0.5);
+      const dg = new THREE.Group(); dg.position.set(cx, sy + rh*0.95, 3 + zc); dg.rotation.x = back ? -tilt : tilt; g.add(dg);
+      [-1, 1].forEach(sd=>fput(fcyl(rh, hl, 6), blk, dg, 0, 0, sd*(6.6 + hl/2), Math.PI/2, Math.PI/6, 0));
+      fput(fcyl(1.6, 13.2, 10), chrome, dg, 0, 0, 0, Math.PI/2);
+    }
+  } else if(s.sep){
+    /* פלטות עומדות בין מפרידים: נשענות על שני הפסים של המגש (z=±9, גובה 3) */
+    const r = Math.min(22.5, (room - 3)/2), cy = a + 3 + Math.sqrt(Math.max(0, r*r - 81));
+    const segs = s.sep + 1, seg = L/segs;
+    for(let j=0;j<segs;j++){
+      const col = fmat(PLATE_COL[(j + k) % PLATE_COL.length], 0.7), th = 3 + ((j + k) % PLATE_COL.length)*0.9, cnt = Math.max(1, Math.floor((seg - 8)/(th + 0.4)));
+      for(let q=0;q<cnt;q++){ const px = x + seg*j + 4 + th/2 + q*(th + 0.4); fput(fcyl(r, th, 20), col, g, px, cy, 3, 0, 0, Math.PI/2); fput(fcyl(2.6, th + 0.4, 10), chrome, g, px, cy, 3, 0, 0, Math.PI/2); }
+    }
+  } else {
+    /* כדורים על שני הפסים העליונים (z=±8, גובה 7.5) */
+    let px = x + 3;
+    for(let i=0; ; i++){
+      const r = Math.min(10 + (3 - i % 4)*1.6, (room - 8)/2); if(px + 2*r > x + L - 2) break;
+      fput(fsph(r), blk, g, px + r, a + 7.5 + Math.sqrt(Math.max(0, r*r - 64)), 3); px += 2*r + 1.5;
+    }
+  }
+}
+/* מדפים פינתיים: מגבות למטה, גליל עיסוי באמצע, עציץ למעלה */
+function cornerFill(g, x, y, c){
+  const cx = x + 34.5, cz = 18.2, fy = y + 2.5;
+  if(c===0) for(let i=0;i<3;i++) fput(fbox(30, 3.4, 20), fmat('#d9d6cf', 0.95), g, cx, fy + 1.7 + i*3.5, cz, 0, 0.78 + i*0.05);
+  else if(c===1) fput(fcyl(7.5, 32, 18), fmat('#e8c9a8', 0.9), g, cx, fy + 7.5, cz, 0, 0.78, Math.PI/2);
+  else { fput(fcyl(7, 15, 14), fmat('#8f8579', 0.9), g, cx, fy + 7.5, cz); fput(fcyl(6.6, 1, 14), fmat('#3a2c22', 1), g, cx, fy + 15, cz);
+    for(let i=0;i<9;i++){ const a = i*0.7, l = 16 + (i % 3)*4; fput(fbox(2.2, l, 0.4), fmat('#4f8a3c', 0.8), g, cx + Math.cos(a)*2.5, fy + 15 + l/2*0.9, cz + Math.sin(a)*2.5, Math.sin(a)*0.35, a, Math.cos(a)*0.35); } }
+}
 /* אורך המתח בין שתי תחנות */
 function popGap(pos, j){
   openPop(pos, `<b>מתח בין תחנה ${j+1} לתחנה ${j+2}</b>${popRow(GAP_W.map(w=>[w, w+' ס״מ']), RIG.gaps[j], 'gw')}`, el=>{
@@ -665,6 +732,7 @@ function bindControls(){
     else if(v==='front'){ c.theta = 0; c.phi = 1.5; fit(); }
     else if(v==='side'){ c.theta = -Math.PI/2; c.phi = 1.45; fit(); }
     else if(v==='top'){ c.theta = 0; c.phi = 0.12; fit(); }
+    else if(v==='fill'){ FILL = !FILL; e.target.closest('button').setAttribute('aria-pressed', FILL); build3D(); return; }
     else if(v==='in'){ c.r = Math.max(V3.R*0.6, c.r/1.25); }
     else if(v==='out'){ c.r = Math.min(V3.R*9, c.r*1.25); }
     draw();
@@ -852,13 +920,14 @@ function build3D(){
         mesh('ksf'+b.w, s.liner ? rubber : mat, sg);
         if(s.t==='DS') mesh('dba'+b.w, mat, sg);
       }
+      if(FILL){ const up = k+1 < b.shelves.length ? lv[k+1] : Math.min(b.hl, b.hr) + 25; shelfFill(g, x, L, a, s, k, up - a); }
     });
     if(b.shelves.length < bayCap(i)) anchors.push({g, p:[x + L/2, lv[b.shelves.length] + 10, 8], kind:'shelf', i});
     p++; addPost(g, x + L + POST, b.hr); bolts(g, x + L + POST, W2[wi], p, wi);
     x += L + POST;
   });
   if(S.bays.length && S.bays.length < 6) anchors.push({g, p:[x + 26, Math.min(S.bays[S.bays.length-1].hr, 150)*0.5, 3], kind:'bay'});
-  for(let c=0;c<S.corners;c++) mesh('cs', steel, wingA, endA, CS_LEVELS[c]);
+  for(let c=0;c<S.corners;c++){ mesh('cs', steel, wingA, endA, CS_LEVELS[c]); if(FILL) cornerFill(wingA, endA, CS_LEVELS[c], c); }
   }
   /* גבולות לפי מה שנבנה בפועל (בלי הצינור המלא, שנחתך בגבהים הנמוכים) */
   group.updateMatrixWorld(true);
@@ -1047,7 +1116,7 @@ $('addBay').onclick = ()=>addBay();
 $('turn').onchange = e=>{ S.turn = e.target.value==='' ? null : +e.target.value; if(S.turn==null) S.corners = 0; render(); };
 function render(){
   const rig = TAB==='rig';
-  $('bar-rig').hidden = !rig; $('bar-shelf').hidden = rig; $('listedit').hidden = rig;
+  $('bar-rig').hidden = !rig; $('bar-shelf').hidden = rig; $('fillbtn').hidden = rig; $('listedit').hidden = rig;
   $('lead').textContent = rig ? 'בוחרים ריג קיר או ריג עצמאי ומוסיפים תחנות עם ＋ בהדמיה. כל תחנה היא מתח של 109 ס״מ; בין תחנה לתחנה לוחצים על "מתח" ובוחרים 150 או 180 ס״מ. האביזרים שבוחרים מופיעים בהדמיה, והמחיר מתעדכן לצדה.'
     : 'לוחצים על מדף כדי לשנות אותו, על רגל כדי לבחור לה גובה, ועל ＋ כדי להוסיף מדף או עמודה. המחיר מתעדכן לצד ההדמיה.';
   document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-selected', b.dataset.tab===TAB));
