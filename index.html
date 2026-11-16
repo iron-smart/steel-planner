@@ -324,6 +324,7 @@ let TAB = 'shelf';
 const RIG = {type:'wall', n:1, gaps:[], color:'9005', acc:{}};
 const RIG_PITCH = 115.2, RIG_DEPTH = 156;      /* מרכז קורה למרכז קורה: 109.2+6 לרוחב, 150+6 לעומק */
 const GAP_W = [150, 180];
+const RIG_MAX = 10;   /* עד 10 תחנות (רומן, 16/11/2026) */
 function rigNorm(){ RIG.gaps.length = RIG.n - 1; for(let j=0;j<RIG.gaps.length;j++) if(!GAP_W.includes(RIG.gaps[j])) RIG.gaps[j] = 150; }
 /* מיקום הקורות לאורך הריג: לכל תחנה שתי קורות, ומרווח 150/180 ביניהן */
 function rigPosts(){ rigNorm(); const xs = []; let x = 0;
@@ -815,7 +816,7 @@ function build3D(){
       if(!V3.wallMat){ V3.wallMat = new THREE.MeshStandardMaterial({color:0xd9dde2, roughness:1, metalness:0}); V3.wallMat.userData.rgb = [217,221,226]; V3.wallMat.color.convertSRGBToLinear(); }
       const wall = new THREE.Mesh(new THREE.BoxGeometry(SPAN + 90, 285, 2), V3.wallMat); wall.position.set(SPAN/2, 142.5, -113.4); wall.receiveShadow = true; group.add(wall);
     }
-    if(RIG.n < 6) anchors.push({g:group, p:[SPAN + 30, 130, free ? -RIG_DEPTH/2 : 0], kind:'station'});
+    if(RIG.n < RIG_MAX) anchors.push({g:group, p:[SPAN + 30, 130, free ? -RIG_DEPTH/2 : 0], kind:'station'});
   } else {
   const wingA = new THREE.Group(), wingB = new THREE.Group(); group.add(wingA);
   /* ברגים: לאורך העומק לתמיכות האלכסוניות, ולרוחב (דרך פלטת המדף והקורה) לכל חור תפוס */
@@ -895,7 +896,7 @@ function removeBay(i){ S.bays.splice(i,1); if(S.turn!=null && i<=S.turn) S.turn 
 function renderRigUI(){
   $('rtype').innerHTML = [['wall','ריג קיר'],['free','ריג עצמאי']].map(([k,n])=>`<button type="button" data-k="${k}" aria-pressed="${k===RIG.type}">${n}</button>`).join('');
   $('rtype').querySelectorAll('button').forEach(b=>b.onclick=()=>{ RIG.type = b.dataset.k; render(); });
-  $('rcount').replaceWith(Object.assign(stepper(RIG.n, 1, 6, v=>{ RIG.n = v; render(); }, 'תחנות'), {id:'rcount'}));
+  $('rcount').replaceWith(Object.assign(stepper(RIG.n, 1, RIG_MAX, v=>{ RIG.n = v; render(); }, 'תחנות'), {id:'rcount'}));
   $('rcolname').textContent = 'RAL ' + RIG.color;
   $('rswatches').innerHTML = COLORS.map(([ral,hex])=>`<button class="sw" type="button" data-ral="${ral}" style="background:${hex}" aria-pressed="${ral===RIG.color}" aria-label="RAL ${ral}" title="RAL ${ral}"></button>`).join('');
   $('rswatches').querySelectorAll('button').forEach(b=>b.onclick=()=>{ RIG.color = b.dataset.ral; render(); });
