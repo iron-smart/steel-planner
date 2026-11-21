@@ -55,6 +55,16 @@ h2{font-size:17px;font-weight:700}
 .stage{padding:0;overflow:hidden}
 .view{position:relative;background:linear-gradient(var(--stage-a),var(--stage-b));color:var(--stage-ink)}
 #stage3d{display:block;min-height:280px}
+/* מסך מלא (רומן, 22/11/2026): הבמה כולה — פקדים, הדמיה וחלוניות — ממלאת את החלון. עובד גם בלי Fullscreen API (אייפון, דף מוטמע) */
+html.lock{overflow:hidden}
+.stage.full{position:fixed;inset:0;z-index:100;margin:0;border:0;border-radius:0;display:flex;flex-direction:column;overflow:hidden}
+.stage.full .view{flex:1;min-height:0;display:flex;flex-direction:column}
+.stage.full .cv{flex:1;min-height:0;overflow:hidden}
+.stage.full #stage3d{min-height:0}
+.stage.full .facts{display:none}
+.stage.full .insp{max-height:26vh;overflow:auto}
+/* בטלפון הפקדים שמעל ההדמיה תופסים חצי מסך — במסך מלא נשארים ההדמיה, כפתורי המבט והחלונית */
+@media (max-width:560px){.stage.full .bar,.stage.full .insp{display:none}}
 #stage3d canvas{display:block;width:100%;touch-action:pan-y;cursor:grab;outline:none}
 #stage3d canvas:active{cursor:grabbing}
 .cv{position:relative}
@@ -70,9 +80,11 @@ h2{font-size:17px;font-weight:700}
 .pchip b{font-family:var(--f-display);font-size:17px;font-variant-numeric:tabular-nums;direction:ltr}
 .pchip:focus-visible{outline:2px solid var(--stage-ink);outline-offset:2px}
 /* הודעה בתוך הבמה, עם "ביטול" (ממצא 1) */
-.smsg{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);z-index:4;width:max-content;max-width:calc(100% - 24px);display:flex;align-items:center;gap:12px;background:var(--brand-deep);color:#fff;border-radius:10px;padding:8px 14px;font-size:13.5px;line-height:1.35;box-shadow:0 4px 16px rgba(0,0,0,.35)}
+/* בראש ההדמיה, מתחת לכפתורי המבט: הבמה גבוהה, ובמסך נמוך התחתית שלה מתחת לקצה המסך */
+.smsg{position:absolute;top:52px;left:50%;transform:translateX(-50%);z-index:4;width:max-content;max-width:calc(100% - 24px);display:flex;align-items:center;gap:12px;background:var(--brand-deep);color:#fff;border-radius:10px;padding:8px 14px;font-size:13.5px;line-height:1.35;box-shadow:0 4px 16px rgba(0,0,0,.35)}
 .smsg button{all:unset;cursor:pointer;font-weight:700;text-decoration:underline;white-space:nowrap;padding:4px 2px}
 .smsg button:focus-visible{outline:2px solid #fff;outline-offset:2px}
+@media (max-width:560px){.smsg{top:10px}}
 .viewbar button:focus-visible{outline:2px solid var(--mark);outline-offset:2px}
 .viewhint{position:absolute;bottom:8px;inset-inline-end:12px;font-size:12.5px;color:var(--stage-ink);opacity:.7;pointer-events:none}
 .nogl{padding:40px 20px;text-align:center;color:var(--stage-ink)}
@@ -274,6 +286,7 @@ textarea.copy{width:100%;min-height:140px;font:13px/1.5 var(--f-body);margin-top
           <button type="button" data-v="out" aria-label="הקטנה">−</button>
           <button type="button" data-v="fill" id="fillbtn" aria-pressed="true" title="משקולות, כדורים ופלטות להמחשה בלבד">תכולה</button>
           <button type="button" data-v="undo" id="undobtn" disabled title="ביטול הפעולה האחרונה (Ctrl+Z)">ביטול</button>
+          <button type="button" data-v="full" id="fullbtn" aria-pressed="false" title="ההדמיה על כל המסך (Esc ליציאה)">מסך מלא</button>
           <button type="button" class="pchip" id="pchip" title="מעבר לרשימת החלקים"></button>
         </div>
       </div>
@@ -547,6 +560,7 @@ function init3D(){
   bindControls();
   if(COARSE) $('viewhint').textContent = 'גוררים לצדדים כדי לסובב · שתי אצבעות לזום';
   new ResizeObserver(resize3D).observe(host);
+  new ResizeObserver(resize3D).observe(host.parentElement);   /* במסך מלא בטלפון החלונית המעוגנת מקטינה את אזור ההדמיה */
   window.addEventListener('resize', resize3D);
   resize3D();
 }
@@ -554,7 +568,8 @@ function resize3D(){
   if(!V3.ok) return;
   /* גובה החלון נקרא מחדש רק בשינוי של ממש: בטלפון שורת הכתובת נכנסת ויוצאת בגלילה, והבמה לא אמורה לקפוץ איתה */
   const ih = V3.ih && Math.abs(window.innerHeight - V3.ih) < 120 ? V3.ih : (V3.ih = window.innerHeight);
-  const w = Math.max(280, V3.host.clientWidth), h = Math.round(Math.max(280, Math.min(640, w*0.62, ih - 300)));
+  /* הבמה גדולה ב-20% (רומן, 22/11/2026). במסך מלא הגובה הוא מה שנשאר בחלון אחרי הפקדים */
+  const w = Math.max(280, V3.host.clientWidth), h = V3.full ? Math.max(240, V3.host.parentElement.clientHeight) : Math.round(Math.max(336, Math.min(768, w*0.744, ih - 200)));
   if(w === V3.vw && h === V3.vh) return;
   V3.vw = w; V3.vh = h;
   if(V3.soft){ V3.cw = w; V3.ch = h; } else V3.renderer.setSize(w, h, false);
@@ -844,8 +859,19 @@ function barGeo(L){
   for(let i=0;i<p.count;i++) if(p.getX(i) > 54.6) p.setX(i, p.getX(i) + d);
   g.computeVertexNormals(); GEO[key] = g; return key;
 }
+/* מסך מלא: מחלקה שממלאת את החלון, ומעליה מסך מלא אמיתי של הדפדפן כשהוא זמין. Esc או הכפתור יוצאים */
+function setFull(on){
+  if(!V3.ok || !!V3.full === on) return;
+  V3.full = on; const st = $('stagepanel'), b = $('fullbtn');
+  st.classList.toggle('full', on); document.documentElement.classList.toggle('lock', on);
+  b.setAttribute('aria-pressed', on); b.textContent = on ? 'יציאה ממסך מלא' : 'מסך מלא';
+  if(on){ try{ const p = st.requestFullscreen && st.requestFullscreen(); if(p && p.catch) p.catch(()=>{}); }catch(_){} }
+  else if(document.fullscreenElement){ try{ document.exitFullscreen(); }catch(_){} }
+  requestAnimationFrame(resize3D);
+}
+document.addEventListener('fullscreenchange', ()=>{ if(!document.fullscreenElement && V3.full) setFull(false); else requestAnimationFrame(resize3D); });
 document.addEventListener('keydown', e=>{
-  if(e.key==='Escape') dismissPop();
+  if(e.key==='Escape'){ if(POP) dismissPop(); else setFull(false); }
   else if((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && e.code==='KeyZ' && !/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)){ e.preventDefault(); undo(); }
 });
 /* לחיצה מחוץ לחלונית סוגרת אותה. על ההדמיה pick() מחליט מה נבחר; חלונית מעוגנת (טלפון) נשארת בזמן סיבוב.
@@ -944,6 +970,7 @@ function bindControls(){
   $('viewbar').addEventListener('click', e=>{
     const v = e.target.closest('button')?.dataset.v; if(!v) return;
     if(v==='undo'){ undo(); return; }
+    if(v==='full'){ setFull(!V3.full); return; }
     const c = V3.cam;
     if(v==='iso'||v==='front'||v==='side'||v==='top') c.target.copy(V3.center);   /* כפתורי המבט מחזירים גם את המרכז שזז בזום */
     if(v==='iso'){ c.theta = -0.62; c.phi = 1.22; fit(); }
@@ -1375,7 +1402,7 @@ function focusBack(k){
   if(el && el.disabled) el = el.parentElement.querySelector('button:not(:disabled)');      /* מונה שהגיע לקצה: עוברים לכפתור השני שלו */
   if(el && el !== document.activeElement && el.focus) el.focus({preventScroll:true});
 }
-$('pchip').onclick = ()=>$('tot').scrollIntoView({behavior:'smooth', block:'center'});
+$('pchip').onclick = ()=>{ setFull(false); requestAnimationFrame(()=>$('tot').scrollIntoView({behavior:'smooth', block:'center'})); };
 let tTimer;
 function flash(msg){ $('toast').textContent = msg; clearTimeout(tTimer); tTimer = setTimeout(()=>$('toast').textContent='', 3500); }
 $('copy').onclick = ()=>{
