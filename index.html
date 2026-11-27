@@ -228,6 +228,10 @@ h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance}
 .pop button.arow:hover,.pop button.arow:focus-visible{background:#eef3f6;border-color:#cdd6dc}
 .pop .arow img,.pop .arow .noimg{width:36px;height:36px;flex:none;object-fit:contain;border-radius:6px;background:#f3f5f7}
 .pop .arow .an{flex:1;line-height:1.3}
+.pop button.arow[disabled]{opacity:.45;cursor:default}
+.pop .arow .an small{display:block;font-weight:400;font-size:11.5px;color:#7a4e00}
+.pop .rsh-no{margin:2px 0 4px;font-size:12.5px;color:#7a4e00;white-space:normal}
+.pop .rsh-cur{display:flex;flex-direction:column;gap:2px;font-size:12.5px;margin:2px 0}
 .pop .arow .ap{flex:none;font-weight:400;color:#5d6e7c;font-size:12.5px;font-variant-numeric:tabular-nums}
 .pop button.rm{border-color:transparent;text-decoration:underline;font-weight:400;padding:2px 0;color:#5d6e7c}
 .pop button.px{border-color:transparent;padding:0;width:28px;height:28px;font-size:15px;font-weight:400;display:grid;place-items:center}
@@ -842,12 +846,36 @@ const accBack = sku => twoSided(sku) ? Math.max(0, Math.min((RIG.back && RIG.bac
 const accFront = sku => (RIG.acc[sku]||0) - accBack(sku);
 /* מולטי גריפ בתחנה j בשורה ri — במקום מתח 109 שלה (רומן, 27/11/2026: "במקום מתח 109"). כמו בהדמיה: היחידות הראשונות
    בכל צד, עד תחנה אחת לכל יחידה */
+/* מידוף בצד האחורי של ריג 2 תחנות (רומן, 27/11/2026: "בריג 2 תחנות תוסיף את כל אפשרויות המידות של 109 שזה בתוך תחנה ובין
+   תחנות 150 ו-180. זה אך ורק אם התחנה איננה כוללת jcups או זרועות בטיחות מכל סוג שהוא"; הכרעות: בצד האחורי, עד 5 קומות כמו
+   במידוף 180). RIG.sh = {'s2': ['KS','DS'], 'g0': ['BS']} — קטע 's'+j = תחנה j (109), 'g'+j = המתח שבין j ל-j+1 (150/180);
+   סוגי המדפים מלמטה למעלה. הקומות על חורי הצד של קורת הריג (20.5…70.5 כל 5, משם כל 10): המדף נתפס בחור a ובחור a+10 */
+const RSH_TIERS = [20.5, 40.5, 80.5, 120.5, 160.5];
+const RSH_BLOCK = ['ST-YT0003D', 'ST-RJC', 'ST-SPA'];   /* J-Cups וזרועות בטיחות — בצד האחורי; רצועות הבטיחות (ST-W6050) עוברות לאחור מהחזית */
+const rigShelfOk = () => RIG.type==='free' && !helios();
+const rshList = key => (rigShelfOk() && RIG.sh && Array.isArray(RIG.sh[key])) ? RIG.sh[key] : [];
+/* התחנות שבהן יש מדף בצד האחורי, בתחנה עצמה או במתח שליד — לשם לא הולכים J-Cups/זרועות מאחור ורצועות */
+function rshStations(){ const s = new Set(); for(let j=0;j<RIG.n;j++){ if(rshList('s'+j).length || rshList('g'+j).length || (j && rshList('g'+(j-1)).length)) s.add(j); } return s; }
+/* קטע חסום למדף: בתחנה (או בשתי התחנות שמשני צדי המתח) יש J-Cup / זרועות בטיחות מאחור, או רצועות בטיחות */
+function rshBlocked(key){ const j = +key.slice(1), st = key[0]==='s' ? [j] : [j, j+1];
+  return st.some(x=>RSH_BLOCK.some(sku=>pairStations(sku, 1).includes(x)) || pairStations('ST-W6050', 0).includes(x)); }
+/* מדפים לכל קטע: [{key, j, w, L, list}] */
+function rigShelves(){ if(!rigShelfOk()) return []; const out = [];
+  for(let j=0;j<RIG.n;j++){ const a = rshList('s'+j); if(a.length) out.push({key:'s'+j, j, w:109, L:WLEN[109], list:a});
+    if(j < RIG.n-1){ const g = rshList('g'+j); if(g.length) out.push({key:'g'+j, j, w:RIG.gaps[j], L:WLEN[RIG.gaps[j]], list:g}); } }
+  return out; }
+/* החורים התפוסים בקורה האחורית k: מכל מדף שמשני צדיה — a ו-a+10 */
+function rshPostHoles(k){ const j = k >> 1, left = k % 2 === 0, hs = new Set();
+  for(const key of [ 's'+j, left ? 'g'+(j-1) : 'g'+j ]) rshList(key).forEach((_, i)=>{ hs.add(RSH_TIERS[i]); hs.add(RSH_TIERS[i] + 10); });
+  return [...hs]; }
 /* באילו תחנות מצויר אביזר של תחנה (זוג / מתח קופים) בצד ri — אותו סדר כמו בציור (rigAccessories): התחנות שנבחרו מההדמיה קודם */
 function pairStations(sku, ri){ const q = Math.min(ri ? accBack(sku) : accFront(sku), RIG.n); if(!q) return [];
   const pf = ((RIG.at||{})[sku]||[]).filter(k=>k[0]===(ri ? 'b' : 'f')).map(k=>+k.slice(1)), seen = [];
   for(const s of pf) if(s < RIG.n && !seen.includes(s)) seen.push(s);
   for(let s=0; s<RIG.n; s++) if(!seen.includes(s)) seen.push(s);
-  return seen.slice(0, q); }
+  /* מדף בצד האחורי קודם: J-Cups וזרועות מאחור, ורצועות, לא יושבים בתחנה שיש בה מדף */
+  const sh = (ri && RSH_BLOCK.includes(sku)) || sku==='ST-W6050' ? rshStations() : null;
+  return (sh ? seen.filter(s=>!sh.has(s)) : seen).slice(0, q); }
 function mgbAt(ri, j){ return pairStations('ST-BAR-70M', ri).includes(j); }
 /* מוט אולימפי 220 על ה-J-Cups — למדידת מרחק (רומן, 27/11/2026: "בתוך הריגים תוסיף את המודלים של המוטות למדידת מרחק. חוק בין מוט
    לקיר חובה 50 ס״מ מינימום"). מוט בכל תחנה עם J-Cup (על הסנדוויץ׳ כשיש שניהם); הגובה והעומק — לפי השקע של ה-J-Cup (נמדד במודלים).
@@ -905,7 +933,8 @@ function rigParts(){
   ACC.forEach(([sku, name])=>add(sku, name, RIG.acc[sku]||0, sku==='ST-BAR-70M' ? H_NOTE.mgb() : null));
   /* ברגים לכל קורה, כמו בהדמיה: בורג לכל חור שבו נתפס מוט מתח (postBarHoles — 2 כשהמתחים באותו גובה), ועוד 2 לזרוע הקיר
      בריג קיר או 4 למוטות העומק בריג עצמאי Steel. ב-Helios — רק המתחים (עד 27/11/2026 נספרו בו גם ברגים לזרוע קיר שאין בו) */
-  let nb = 0; for(let k=0;k<2*RIG.n;k++) for(let ri=0;ri<rows;ri++) nb += postBarHoles(k, ri).length;
+  for(const sg of rigShelves()) sg.list.forEach(t=>add('ST-GEN-'+t+sg.w, TYPES[t].name+' '+sg.w+' ס״מ', 1));
+  let nb = 0; for(let k=0;k<2*RIG.n;k++){ for(let ri=0;ri<rows;ri++) nb += postBarHoles(k, ri).length; nb += rshPostHoles(k).length; }
   add('M12x95', 'סט בורג M12×95 עם דסקיות ואום', nb + (RIG.type==='wall' ? 2 : rows===2 ? 4 : 0) * 2*RIG.n);
   return m;
 }
@@ -1115,7 +1144,7 @@ function positionOverlay(){
     if(!front || Math.abs(v.x) > 1.06 || Math.abs(v.y) > 1.06){ show(a, false); continue; }
     let hw = a.w/2, hh = a.h/2, dot = false;
     const x = Math.max(hw+4, Math.min(w-hw-4, (v.x*0.5+0.5)*w)); let y = Math.max(hh+4, Math.min(h-hh-4, (-v.y*0.5+0.5)*h));
-    if((a.kind==='info' || a.kind==='acc') && hit(x, y, hw, hh)){ show(a, false); continue; }   /* ＋ אביזר ו-i — רק כשיש מקום; האביזרים גם בכרטיסים */
+    if((a.kind==='info' || a.kind==='acc' || a.kind==='rsh') && hit(x, y, hw, hh)){ show(a, false); continue; }   /* ＋ אביזר ו-i — רק כשיש מקום; האביזרים גם בכרטיסים */
     if(a.kind==='gap' && hit(x, y, hw, hh)){
       /* קודם מנסים להזיז את הכפתור שורה למעלה או למטה; אם אין מקום — נקודה, גם היא עם הזזה */
       const free = (s, n) => { for(let q=0;q<=n;q++) for(const d of q ? [-q, q] : [0]){ const yy = y + d*(2*s+6); if(yy > s+4 && yy < h-s-4 && !hit(x, yy, s===hh ? hw : s, s)) return yy; } return null; };
@@ -1175,13 +1204,37 @@ function popAddShelf(pos, i){
   });
 }
 /* ＋ בתחנה: רשימת האביזרים (תמונה, שם, מחיר). בחירה מוסיפה יחידה ורושמת את התחנה, כדי שהאביזר יצויר בה */
+/* מדפים בקטע של הצד האחורי: הוספה (עד 5 קומות) והסרה. חסום כשיש בתחנה J-Cup או זרועות בטיחות */
+function rshHtml(key){
+  const j = +key.slice(1), w = key[0]==='s' ? 109 : RIG.gaps[j], list = rshList(key), blk = rshBlocked(key), full = list.length >= RSH_TIERS.length;
+  const where = key[0]==='s' ? `תחנה ${j+1}` : `מתח ${j+1}`;
+  const cur = list.map((t, i)=>`<span class="rsh-it">קומה ${i+1}: ${esc(TYPES[t].short)}</span>`).join('');
+  const add = blk ? `<p class="rsh-no">לא ניתן להוסיף מדף: ${key[0]==='s' ? `בתחנה ${j+1}` : 'בתחנה שליד המתח'} יש J-Cup או זרועות בטיחות.</p>`
+    : full ? `<p class="rsh-no">${where} מלאה: עד ${RSH_TIERS.length} קומות.</p>`
+    : `<div class="alist">${Object.keys(TYPES).map(t=>{ const sku = 'ST-GEN-'+t+w, u = unitPrice(sku);
+        return `<button type="button" class="arow" data-sht="${t}">${D[sku] ? `<img alt="" src="${D[sku].img}">` : '<span class="noimg"></span>'}<span class="an">${esc(TYPES[t].name)} ${w} ס״מ</span><span class="ap">${u==null ? 'לפי הצעה' : fmtMoney(u)}</span></button>`; }).join('')}</div>`;
+  return `<span class="plbl">מדף בצד האחורי · ${w} ס״מ</span>${add}${list.length ? `<div class="rsh-cur">${cur}<button type="button" class="rm" data-shrm>הסרת המדף העליון</button></div>` : ''}`;
+}
+function wireRsh(el, key, reopen){
+  el.querySelectorAll('[data-sht]').forEach(b=>b.onclick=()=>{ RIG.sh = RIG.sh || {}; (RIG.sh[key] = RIG.sh[key] || []).push(b.dataset.sht); closePop(); render(); note(`${TYPES[b.dataset.sht].name} נוסף בצד האחורי`, true); reopen(); });
+  const rm = el.querySelector('[data-shrm]'); if(rm) rm.onclick = ()=>{ RIG.sh[key].pop(); if(!RIG.sh[key].length) delete RIG.sh[key]; closePop(); render(); reopen(); };
+}
+function popRigShelf(pos, key){
+  const j = +key.slice(1);
+  openPop(pos, `מתח ${j+1} · מאחור: מדפים`, rshHtml(key), el=>{ el.classList.add('apop');
+    wireRsh(el, key, ()=>{ const a = V3.anchors.find(x=>x.kind==='rsh' && x.j===j); if(a) popRigShelf(a.pos, key); }); });
+}
 function popAddAcc(pos, j, r){
   const list = ACC.filter(([sku])=>!r || twoSided(sku));
   const rows = list.map(([sku, name])=>{ const u = unitPrice(sku);
-    return `<button type="button" class="arow" data-sku="${esc(sku)}">${D[sku] ? `<img alt="" src="${D[sku].img}">` : '<span class="noimg"></span>'}<span class="an">${esc(name)}</span><span class="ap">${u==null ? 'לפי הצעה' : fmtMoney(u)}</span></button>`; }).join('');
-  openPop(pos, `תחנה ${j+1}${r ? ' · מאחור' : ''}: איזה אביזר להוסיף?`, `<div class="alist">${rows}</div><div class="links"><button type="button" class="rm" data-all>כל האביזרים והכמויות</button></div>`, el=>{
+    const off = r && RSH_BLOCK.includes(sku) && rshStations().has(j);
+    return `<button type="button" class="arow" data-sku="${esc(sku)}"${off ? ' disabled title="יש בתחנה מדף בצד האחורי"' : ''}>${D[sku] ? `<img alt="" src="${D[sku].img}">` : '<span class="noimg"></span>'}<span class="an">${esc(name)}${off ? '<small>לא עם מדף בתחנה</small>' : ''}</span><span class="ap">${u==null ? 'לפי הצעה' : fmtMoney(u)}</span></button>`; }).join('');
+  /* מאחור בריג 2 תחנות: גם מדפים לתחנה (קודם), ואז האביזרים */
+  const shelf = r && rigShelfOk() ? rshHtml('s'+j) + '<span class="plbl">אביזר</span>' : '';
+  openPop(pos, `תחנה ${j+1}${r ? ' · מאחור' : ''}: ${shelf ? 'מדף או אביזר' : 'איזה אביזר להוסיף?'}`, `${shelf}<div class="alist">${rows}</div><div class="links"><button type="button" class="rm" data-all>כל האביזרים והכמויות</button></div>`, el=>{
     el.classList.add('apop');
-    el.querySelectorAll('[data-sku]').forEach(b=>b.onclick=()=>{
+    if(shelf) wireRsh(el, 's'+j, ()=>{ const a = V3.anchors.find(x=>x.kind==='acc' && x.j===j && x.r===1); if(a) popAddAcc(a.pos, j, 1); });
+    el.querySelectorAll('[data-sku]:not([disabled])').forEach(b=>b.onclick=()=>{
       const sku = b.dataset.sku, name = (ACC.find(x=>x[0]===sku)||[])[1] || sku;
       RIG.acc[sku] = (RIG.acc[sku]||0) + 1;
       if(r){ RIG.back = RIG.back || {}; RIG.back[sku] = (RIG.back[sku]||0) + 1; }
@@ -1776,6 +1829,19 @@ function build3D(quiet){
     });
     const SPAN = PX[PX.length-1];
     rigAccessories(PG, PX, deep);   /* שני צדדים — רק בריג עצמאי עם שתי שורות */
+    /* מדפים בצד האחורי: קבוצה מסובבת על הקורה האחורית, כמו עמודת מידוף (המדף מהדופן הפנימית של הקורה, z=3 = הפאה החיצונית) */
+    for(const sg of rigShelves()){
+      const Xa = PX[sg.key[0]==='s' ? 2*sg.j : 2*sg.j+1], Xb = Xa + sg.L + POST;
+      const g0 = new THREE.Group(); g0.position.set(Xb - 3, 0, -RIG_DEPTH); g0.rotation.y = Math.PI; group.add(g0);
+      sg.list.forEach((t, i)=>{ const a = RSH_TIERS[i];
+        if(t==='BS') mesh('bs'+sg.w, steel, g0, 0, a).position.z = 3;
+        else { const P = MB.poses[t==='KS' ? 'flat' : 'front'], M = P.m, sgp = new THREE.Group(); g0.add(sgp); sgp.matrixAutoUpdate = false;
+          sgp.matrix.set(M[0][0],M[0][1],M[0][2], (P.flip ? sg.L : 0),  M[1][0],M[1][1],M[1][2], a + 10,  M[2][0],M[2][1],M[2][2], 3,  0,0,0,1);
+          mesh('ks'+sg.w, steel, sgp); mesh('ksf'+sg.w, steel, sgp); if(t==='DS') mesh('dba'+sg.w, steel, sgp); } });
+    }
+    PX.forEach((X, k)=>rshPostHoles(k).forEach(h=>bolt(X, h, -RIG_DEPTH, true)));
+    /* ＋ מדף במתח שבין התחנות, בצד האחורי (בתחנה עצמה — ה-＋ של האביזרים מאחור) */
+    if(rigShelfOk()) for(let j=0;j<RIG.n-1;j++) anchors.push({g:group, p:[PX[2*j+1] + 3 + RIG.gaps[j]/2, 120, -RIG_DEPTH - 10], kind:'rsh', j});
     const RB = V3.bars = rigBars();
     if(RB){
       for(const b of RB.bars){ const g = mdlPut('ob220', group, c=>mfill(c), b.x, b.y, b.ri ? -RIG_DEPTH - b.z : b.z, 0, 0, 0, 1, true); g.userData.bar = true; }
@@ -1848,7 +1914,7 @@ function build3D(quiet){
   V3.picks = picks;
   /* כפתורי ההוספה קודם, "מתח" אחריהם: כך במקום צפוף ה"מתח" הוא שמתכווץ, לא ה-＋ */
   /* ובסוף כפתורי i (גובה המתח): הם רק הסבר — כשאין להם מקום הם מוסתרים, ולא דוחקים כפתור פעולה */
-  const prio = a => a.kind==='info' ? 2 : a.kind==='acc' ? 1.5 : a.kind==='gap' ? 1 : 0;
+  const prio = a => a.kind==='info' ? 2 : a.kind==='acc' || a.kind==='rsh' ? 1.5 : a.kind==='gap' ? 1 : 0;
   anchors.sort((a, b)=>prio(a) - prio(b));
   const lim = (el, text, why) => { el.className = 'limb'; el.textContent = text; el.title = why; el.setAttribute('aria-label', text + ': ' + why); el.onclick = ()=>note(why); };
   V3.anchors = anchors.map(a=>{
@@ -1863,6 +1929,7 @@ function build3D(quiet){
       el.onclick = ()=>{ if(POP && POP.info === el && !POP.hover){ closePop(); return; } open(false); };
       if(!COARSE){ el.onmouseenter = ()=>{ if(!POP || POP.info !== el) open(true); }; el.onmouseleave = ()=>{ if(POP && POP.info === el && POP.hover) closePop(); }; } }
     else if(a.kind==='acc'){ el.className = 'plus'; el.textContent = '＋'; el.title = 'הוספת אביזר'; el.setAttribute('aria-label', `הוספת אביזר לתחנה ${a.j+1}${a.r ? ', בצד האחורי' : ''}`); el.setAttribute('aria-haspopup', 'dialog'); el.onclick = ()=>popAddAcc(pos, a.j, a.r); }
+    else if(a.kind==='rsh'){ el.className = 'plus'; el.textContent = '＋'; el.title = 'מדף'; el.setAttribute('aria-label', `מדף בצד האחורי, במתח ${a.j+1}`); el.setAttribute('aria-haspopup', 'dialog'); el.onclick = ()=>popRigShelf(pos, 'g'+a.j); }
     else if(a.kind==='bay'){ el.textContent = '＋ עמודה'; el.onclick = ()=>popAddBay(pos); }
     else if(a.kind==='stmax') lim(el, `עד ${RIG_MAX} תחנות`, `אפשר לתכנן כאן עד ${RIG_MAX} תחנות בריג אחד`);
     else if(a.kind==='baymax') lim(el, `עד ${MAX_BAYS} עמודות`, `אפשר לתכנן כאן עד ${MAX_BAYS} עמודות במתקן אחד`);
@@ -2293,6 +2360,7 @@ function designLines(kind, st){
       const out = [`${RIG.type==='wall' ? 'ריג מעוגן קיר (שורה אחת)' : helios() ? 'ריג מעוגן רצפה, 1 תחנה — Helios (שורה אחת, רגלית A לכל קורה)' : 'ריג מעוגן רצפה, 2 תחנות — Steel (חזית ואחור)'} · ${cnt(RIG.n, 'תחנה אחת', 'תחנות')}`];
       out.push(H_NOTE.st().t);
       if(RIG.gaps.length) out.push('בין התחנות: ' + RIG.gaps.map((g, j)=>`מתח ${j+1} = ${g} ס״מ`).join(' · ') + ' · ' + H_NOTE.gap().t.replace('גובה המתח בין התחנות', 'גובה'));
+      const rs = rigShelves(); if(rs.length) out.push('מדפים בצד האחורי: ' + rs.map(s=>`${s.key[0]==='s' ? 'תחנה' : 'מתח'} ${s.j+1} (${s.w}): ${s.list.map(t=>TYPES[t].short).join(', ')}`).join(' · '));
       const rb = rigBars(); if(rb) out.push(`רוחב נדרש לחדר: ${rb.need} ס״מ — לפחות ${BAR_WALL} ס״מ מקצה מוט 220 ס״מ (על ה-J-Cups) לקיר`);
       if(RIG.acc['ST-BAR-70M']) out.push('מולטי גריפ: ' + H_NOTE.mgb().t.replace('גובה המתח בתוך התחנה', 'גובה'));
       out.push(`קורות: ${colLabel(RIG.color)} · מוטות מתח: שחור מגורען (RAL 9005)`);
@@ -2382,6 +2450,11 @@ function cleanRig(o){
       for(const k of a){ if(typeof k!=='string' || !/^[fb]\d+$/.test(k) || +k.slice(1) >= n) continue;
         if(k[0]==='b'){ if(twoSided(sku) && b.length < qb) b.push(k); } else if(f.length < qf) f.push(k); }
       if(f.length || b.length) (RIG.at = RIG.at || {})[sku] = f.concat(b); }
+    /* מדפים בצד האחורי (RIG.sh) — רק בריג 2 תחנות, בקטעים שקיימים, סוגים מוכרים ועד 5 קומות */
+    if(rigShelfOk() && o.sh && typeof o.sh==='object') for(const [k, v] of Object.entries(o.sh)){
+      const m = /^([sg])(\d+)$/.exec(k); if(!m || !Array.isArray(v)) continue; const j = +m[2];
+      if(j >= n || (m[1]==='g' && j >= n-1)) continue;
+      const l = v.filter(t=>TYPES[t]).slice(0, RSH_TIERS.length); if(l.length) (RIG.sh = RIG.sh || {})[k] = l; }
     return RIG; });
 }
 function loadDesign(){
