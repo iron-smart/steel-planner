@@ -170,6 +170,9 @@ h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance}
 .vseg button:focus-visible,.vbtn:focus-visible{outline:2px solid #002d48;outline-offset:2px}
 .dims{position:absolute;top:12px;inset-inline-end:12px;font-size:12.5px;font-weight:600;color:#0b2233;background:rgba(255,255,255,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-radius:999px;padding:5px 11px;font-variant-numeric:tabular-nums;pointer-events:none;white-space:nowrap}
 .dims:empty{display:none}
+/* אזהרת העיגון כתווית צפה בהדמיה (27/11/2026): מתחת למידות, בצבע אזהרה; לא נלחצת ולא חוסמת גרירה */
+.anchor-tag{position:absolute;top:46px;inset-inline-end:12px;display:flex;align-items:center;gap:6px;max-width:calc(100% - 24px);background:#fff4df;color:#6b4300;border:1px solid #f0d49a;border-radius:999px;padding:4px 11px;font-size:12.5px;font-weight:700;line-height:1.3;pointer-events:none;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.anchor-tag .ico{width:15px;height:15px;flex:none;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linejoin:round;stroke-linecap:round}
 .viewhint{position:absolute;bottom:10px;inset-inline-end:12px;font-size:12.5px;color:#0b2233;opacity:.72;pointer-events:none}
 .viewhint:empty{display:none}
 .smsg{position:absolute;top:56px;left:50%;transform:translateX(-50%);z-index:6;width:max-content;max-width:calc(100% - 24px);display:flex;align-items:center;gap:12px;background:#061827;color:#fff;border-radius:12px;padding:9px 14px;font-size:13.5px;line-height:1.35;box-shadow:0 6px 20px rgba(0,0,0,.35)}
@@ -184,6 +187,7 @@ h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance}
   .vtools{position:static;padding:8px 10px;border-top:1px solid rgba(0,0,0,.12);max-width:none}
   .dims{top:10px;inset-inline-end:10px;font-size:11.5px}
   .smsg{top:44px}
+  .anchor-tag{top:38px;font-size:11.5px}
 }
 /* כפתורי ＋ על ההדמיה (הבמה בהירה תמיד, ולכן צבעים קבועים) */
 #overlay{position:absolute;inset:0;pointer-events:none;overflow:hidden}
@@ -259,7 +263,7 @@ html.lock{overflow:hidden}
 .sum h2{font-size:20px;font-weight:700;margin-top:2px;line-height:1.25}
 .sum .spec{margin:3px 0 0;color:var(--muted);font-size:13.5px}
 /* אזהרת עיגון לריג (27/11/2026) */
-.sum .anchor{display:flex;align-items:center;gap:6px;margin:8px 0 0;color:var(--warn-ink);font-size:13.5px;font-weight:700}
+.sum .anchor{display:flex;align-items:center;gap:6px;margin:10px 0 2px;color:var(--warn-ink);font-size:13.5px;font-weight:700}
 .sum .anchor .ico{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
 .editing{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--accent-2);background:var(--accent-soft);border-radius:999px;padding:2px 4px 2px 9px}
 .editing button{all:unset;pointer-events:auto;cursor:pointer;font-weight:700;text-decoration:underline;text-underline-offset:2px;padding:2px 6px;border-radius:999px}
@@ -293,7 +297,14 @@ html.lock{overflow:hidden}
 .pl .noimg{background:var(--surface-3);border-color:transparent}
 .pl .nm{min-width:0}
 .pl .nm b{display:block;font-weight:600;font-size:13.5px;line-height:1.3}
-.pl .pn{display:block;color:var(--muted);font-size:12px;line-height:1.35;margin-top:1px}
+.pl .pn{display:flex;align-items:center;gap:5px;color:var(--muted);font-size:12px;line-height:1.35;margin-top:2px}
+/* כפתור i להסבר על הערת הגובה (רומן, 27/11/2026: "להוסיף סמל כפתור קטן i"). ביעד מגע — שטח לחיצה רחב מהעיגול */
+.pl .ib{all:unset;flex:none;box-sizing:border-box;width:16px;height:16px;border-radius:50%;border:1.5px solid currentColor;display:grid;place-items:center;font:700 10.5px/1 Georgia,'Times New Roman',serif;font-style:italic;color:var(--ink-2);cursor:pointer;position:relative}
+.pl .ib::after{content:"";position:absolute;inset:-8px}
+.pl .ib[aria-expanded="true"]{background:var(--ink-2);color:var(--surface);border-color:var(--ink-2)}
+.pl .ib:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.pl .tip{display:block;margin-top:4px;padding:6px 9px;border-radius:8px;background:var(--surface-3);color:var(--ink-2);font-size:12px;line-height:1.45}
+.pl .tip[hidden]{display:none}
 .sku{font-family:var(--f-mono);font-size:11.5px;color:var(--muted);direction:ltr;display:inline-block;unicode-bidi:isolate}
 .pl .pr{text-align:left;font-variant-numeric:tabular-nums;white-space:nowrap;line-height:1.3}
 .pl .pr b{display:block;font-size:13.5px;font-weight:700}
@@ -554,6 +565,7 @@ textarea.copy{width:100%;min-height:90px;font:12.5px/1.45 var(--f-body);border:1
             <div id="poplayer"></div>
             <div class="smsg" id="stagemsg" role="status" hidden></div>
             <div class="dims" id="dims"></div>
+            <div class="anchor-tag" id="anchorTag" hidden><svg class="ico" aria-hidden="true"><use href="#i-warn"/></svg><span></span></div>
             <div class="viewhint" id="viewhint"></div>
             <div class="fsbuy" id="fsbuy"><div><b id="fsPrice"></b><small id="fsSub"></small></div><button type="button" class="btn cta" id="fsAdd">הוספה לסל</button></div>
             <svg class="wm" aria-hidden="true" viewBox="0 0 852.7 227.3" fill="currentColor"><path d="M24.3,202.5v-6.8H0v30.9h8.7V216h13.7v-6.8H8.8v-6.8h15.5V202.5z"/><rect x="138.8" y="195.8" width="8.7" height="30.9"/><path d="M270.9,226.7h8.7v-24h9.5v-6.9h-27.7v6.9h9.5V226.7z"/><path d="M423.7,195.8v16.5L410,195.8h-7.2v30.9h8.6v-16.5l13.7,16.5h7.2v-30.9H423.7z"/><path d="M557.6,219.9v-5.7h13.7v-6.5h-13.7v-5.2h15.6v-6.8h-24.3v30.9h24.8v-6.8h-16.1V219.9z"/><path d="M700,227.3c9.2,0,13.7-4.6,13.7-10c0-11.4-17.5-7.9-17.5-12.6c0-1.5,1.3-2.8,5-2.8c2.7,0,5.6,0.8,8.6,2.4 l2.7-6.5c-3.1-1.8-7.2-2.7-11.2-2.7c-9.2,0-13.7,4.5-13.7,10c0,11.5,17.6,7.9,17.6,12.8c0,1.5-1.4,2.5-5,2.5s-7.5-1.2-10.2-3 l-2.9,6.5C689.9,225.9,694.9,227.3,700,227.3z"/><path d="M839,227.3c9.2,0,13.7-4.6,13.7-10c0-11.4-17.5-7.9-17.5-12.6c0-1.5,1.3-2.8,5-2.8c2.7,0,5.6,0.8,8.6,2.4 l2.7-6.5c-3-1.8-7.2-2.7-11.2-2.7c-9.2,0-13.7,4.5-13.7,10c0,11.5,17.6,7.9,17.6,12.8c0,1.5-1.4,2.5-5,2.5s-7.5-1.2-10.2-3l-2.9,6.5 C828.9,225.9,834,227.3,839,227.3z"/><path fill-rule="evenodd" d="M62.1,3.7c0-2.1-1.7-3.7-3.7-3.7H3.7C1.7,0,0,1.7,0,3.7v164.4c0,2.1,1.7,3.7,3.7,3.7h54.7 c2.1,0,3.7-1.7,3.7-3.7C62.1,168.1,62.1,3.7,62.1,3.7z"/><path fill-rule="evenodd" d="M683.1,82.8c24.9,18.4,119.4,88.3,119.4,88.3c0.6,0.5,1.4,0.7,2.2,0.7H849c2.1,0,3.7-1.7,3.7-3.7V3.7 c0-2.1-1.7-3.7-3.7-3.7h-54.7c-2.1,0-3.7,1.7-3.7,3.7v85.7l-120-88.7C670,0.2,669.2,0,668.4,0h-43.7c-2.1,0-3.7,1.7-3.7,3.7v164.4 c0,2.1,1.7,3.7,3.7,3.7h54.7c2.1,0,3.7-1.7,3.7-3.7L683.1,82.8L683.1,82.8z"/><path fill-rule="evenodd" d="M118,0H90.7c-2,0-3.7,1.7-3.7,3.8v164.3c0,2.1,1.7,3.7,3.7,3.7h54.7c2.1,0,3.7-1.7,3.7-3.7V118h54.2l54.1,52.8 c0.7,0.7,1.6,1.1,2.6,1.1h70.5c1.5,0,2.9-0.9,3.4-2.3c0.6-1.4,0.2-3-0.8-4.1L284.5,118h2c18.1,0,32.8-14.7,32.8-32.8V32.7 c0-18.1-14.7-32.7-32.8-32.7H119.8C119.2,0,118.6,0,118,0L118,0z M258.5,52.2v13.7H149.2V52.2H258.5z"/><path fill-rule="evenodd" d="M463,0v50.9h-58V121h58v50.9h-86c-18.1,0-32.8-14.7-32.8-32.8V32.7c0-18,14.7-32.7,32.8-32.7H463z M476.5,0 h87.3c18.1,0,32.8,14.7,32.8,32.7V139c0,18.1-14.7,32.8-32.8,32.8h-87.3V121h59.3V50.9h-59.3V0z"/></svg>
@@ -566,7 +578,7 @@ textarea.copy{width:100%;min-height:90px;font:12.5px/1.45 var(--f-body);border:1
             </div>
             <button type="button" class="vbtn v3" data-v="fill" id="fillbtn" aria-pressed="true" title="משקולות, כדורים ופלטות להמחשה בלבד">תכולה</button>
             <button type="button" class="vbtn icon" data-v="undo" id="undobtn" disabled aria-label="ביטול הפעולה האחרונה" title="ביטול (Ctrl+Z)"><svg class="ico"><use href="#i-undo"/></svg></button>
-            <button type="button" class="vbtn icon v3" data-v="shot" id="shotbtn" aria-label="הורדת תמונה של ההדמיה" title="הורדת תמונה של המבט (זווית או חזית), עם סימן מים"><svg class="ico"><use href="#i-dl"/></svg></button>
+            <button type="button" class="vbtn v3" data-v="shot" id="shotbtn" aria-label="הורדת תמונה של ההדמיה" title="הורדת תמונה של המבט (זווית או חזית), עם סימן מים"><svg class="ico"><use href="#i-dl"/></svg>להורדה</button>
             <button type="button" class="vbtn icon v3" data-v="full" id="fullbtn" aria-pressed="false" aria-label="מסך מלא" title="מסך מלא (Esc ליציאה)"><svg class="ico"><use href="#i-full"/></svg></button>
           </div>
         </div>
@@ -606,7 +618,6 @@ textarea.copy{width:100%;min-height:90px;font:12.5px/1.45 var(--f-body);border:1
         <div class="kind"><span id="sumKind"></span><span class="editing" id="sumEditing" hidden>עריכת פריט מהסל<button type="button" id="editDone" aria-label="ביטול עריכת הפריט — הפריט בסל לא ישתנה">ביטול</button></span></div>
         <h2 id="sumTitle"></h2>
         <p class="spec" id="sumSpec"></p>
-        <p class="anchor" id="sumAnchor" hidden><svg class="ico" aria-hidden="true"><use href="#i-warn"/></svg><span></span></p>
         <div class="pmode"><div class="seg" id="pmode" role="group" aria-label="איזה מחיר להציג">
           <button type="button" data-pm="store" aria-pressed="true">מחיר לחנות</button>
           <button type="button" data-pm="consumer" aria-pressed="false">מחיר לצרכן</button>
@@ -621,6 +632,7 @@ textarea.copy{width:100%;min-height:90px;font:12.5px/1.45 var(--f-body);border:1
           <summary><span>פירוט<small id="partsCount"></small></span><svg class="ico chev"><use href="#i-chev"/></svg></summary>
           <ul class="pl" id="parts"></ul>
           <p class="foot-note" id="partsNote"></p>
+          <p class="anchor" id="sumAnchor" hidden><svg class="ico" aria-hidden="true"><use href="#i-warn"/></svg><span></span></p>
         </details>
       </section>
     </aside>
@@ -773,10 +785,34 @@ let TAB = 'shelf';
 /* ריג Steel: קיר (קורות בשורה אחת, מחוברות לקיר) או עצמאי (שתי שורות).
    תחנת עבודה = מתח של 109 ס״מ בין שתי קורות. בין תחנה לתחנה מתח של 150 או 180 ס״מ (רומן, 16/11/2026) */
 let RIG = {type:'wall', model:'steel', n:1, gaps:[], color:'9005', acc:{}, back:{}};
-/* גובה מוטות המתח — הערה ברשימת החלקים ובתיאור שבהדפסה (רומן, 27/11/2026): בתוך התחנה המתח בגובה סטנדרטי,
-   ובין התחנות אפשר לקבוע גובה אחר. בהדמיה כל המוטות בגובה כ-230 (הברגים ב-225.8 וב-235.8).
-   H_KIT — על שורת הערכה, רק כשאין שורת 109 נפרדת (תחנה אחת): אז המתח שבתחנה נמצא בתוך הערכה */
-const H_ST = 'גובה סטנדרטי כ-230 ס״מ', H_SPAN = 'גובה כ-230 ס״מ, ניתן לשינוי', H_KIT = 'מתח בגובה סטנדרטי כ-230 ס״מ';
+/* גובהי מוטות המתח (רומן, 27/11/2026): מתח בתוך התחנה, מתח בין התחנות ("ניתן לשינוי במעמד ההתקנה") ומולטי גריפ — "הוא גם
+   בתוך עמדה אז גם ב-230". הגובה נקבע במסך ההגדרות של המערכת (ord.settings ⇒ פונקציית הקצה planner-config), ולכן רק ערכים
+   שמתאימים לחורים: חורי הצד בראש הקורה כל 5 ס״מ (185.5–255.5), והמוט נתפס בשני ברגים — הגובה הנומינלי ±5. מכאן 190–250
+   בקפיצות של 5. מרכז המוט = הנומינלי + 0.5 (230 ⇒ 230.5, ובמודל מ-Fusion 230.6). בלי חיבור לשרת — 230 */
+const BAR_H = {min:190, max:250, step:5, def:230};
+const CFG = {st:230, gap:230, mgb:230};
+const barOk = v => Number.isInteger(v) && v >= BAR_H.min && v <= BAR_H.max && (v - BAR_H.min) % BAR_H.step === 0;
+function applyCfg(o){
+  let ch = false;
+  for(const [k, src] of [['st', 'bar_station_h'], ['gap', 'bar_gap_h'], ['mgb', 'mgb_h']]){
+    const v = o && o[src] != null && o[src] !== '' ? +o[src] : NaN;
+    if(barOk(v) && CFG[k] !== v){ CFG[k] = v; ch = true; }
+  }
+  return ch;
+}
+/* ההערות ברשימת החלקים (עם כפתור i) ובתיאור שבהדפסה. tip — ההסבר שנפתח בכפתור */
+const H_NOTE = {
+  st:  () => ({t: `גובה המתח בתוך התחנה כ-${CFG.st} ס״מ`, tip: `המתח מחובר בשני ברגים לחורי הקורות. מרכז המוט בגובה כ-${CFG.st} ס״מ מהרצפה.`}),
+  gap: () => ({t: `גובה המתח בין התחנות כ-${CFG.gap} ס״מ, ניתן לשינוי במעמד ההתקנה`, tip: `המוט שבין התחנות נתפס בחורי הקורות, שיש בהם קפיצות של 5 ס״מ — את הגובה אפשר לקבוע במעמד ההתקנה. ברירת המחדל: כ-${CFG.gap} ס״מ מהרצפה.`}),
+  mgb: () => ({t: `גובה המתח בתוך התחנה כ-${CFG.mgb} ס״מ, במקום מתח 109`, tip: `המולטי גריפ מתחבר לאותם חורים של מתח 109 ובא במקומו בתחנה. הידיות בגובה כ-${CFG.mgb} ס״מ מהרצפה. מתח 109 נשאר ברשימה, כי הוא חלק מהערכה.`})
+};
+/* הגדרות מהמערכת: GET לפונקציית הקצה. בקובץ מקומי (הבדיקות) רק עם CFG_TEST_URL; כשל — נשארים עם 230 */
+const CFG_URL = 'https://hjibpfavkjqocjvffsbq.supabase.co/functions/v1/planner-config';
+function loadCfg(){
+  const url = window.CFG_TEST_URL || (location.protocol === 'file:' ? '' : CFG_URL); if(!url) return;
+  const ac = typeof AbortController === 'function' ? new AbortController() : null, tm = ac ? setTimeout(()=>ac.abort(), 6000) : 0;
+  fetch(url, {cache:'no-cache', signal: ac ? ac.signal : undefined}).then(r=>r.ok ? r.json() : null).then(o=>{ if(o && applyCfg(o)) render(); }).catch(()=>{}).finally(()=>clearTimeout(tm));
+}
 const RIG_PITCH = 115.2, RIG_DEPTH = 156;      /* מרכז קורה למרכז קורה: 109.2+6 לרוחב, 150+6 לעומק */
 const GAP_W = [150, 180];
 const RIG_MAX = 10;   /* עד 10 תחנות (רומן, 16/11/2026) */
@@ -792,6 +828,17 @@ const helios = () => RIG.type==='free' && RIG.model==='helios';
 const twoSided = sku => RIG.type==='free' && !helios() && !THROUGH[sku];
 const accBack = sku => twoSided(sku) ? Math.max(0, Math.min((RIG.back && RIG.back[sku])|0, RIG.acc[sku]||0)) : 0;
 const accFront = sku => (RIG.acc[sku]||0) - accBack(sku);
+/* מולטי גריפ בתחנה j בשורה ri — במקום מתח 109 שלה (רומן, 27/11/2026: "במקום מתח 109"). כמו בהדמיה: היחידות הראשונות
+   בכל צד, עד תחנה אחת לכל יחידה */
+function mgbAt(ri, j){ const q = ri ? accBack('ST-BAR-70M') : accFront('ST-BAR-70M'); return j < Math.min(q, RIG.n); }
+/* החורים (נומינלי ±5) שבהם נתפסים מוטות המתח בקורה k בשורה ri: מתח התחנה — או המולטי גריפ שבמקומו — מצד אחד, ומוט
+   שבין התחנות מהצד השני. חור משותף לשני המוטות = בורג אחד שעובר בשתי הפלטות */
+function postBarHoles(k, ri){
+  const j = k >> 1, left = k % 2 === 0, hs = new Set(), add = h => { hs.add(h - 5); hs.add(h + 5); };
+  add(mgbAt(ri, j) ? CFG.mgb : CFG.st);
+  const g = left ? j - 1 : j; if(g >= 0 && g < RIG.n - 1) add(CFG.gap);
+  return [...hs].sort((a, b)=>a - b);
+}
 /* כמה יחידות נכנסות בהדמיה בצד אחד: זוג/מתח קופים — אחת לתחנה; אביזר קורה — אחת לקורה; שאקל — אחת למוט */
 function accCap(sku){ const k = ACC_KIND[sku]; return k==='post' ? 2*RIG.n : k==='bar' ? 2*RIG.n-1 : RIG.n; }
 function rigNorm(){ RIG.gaps.length = RIG.n - 1; for(let j=0;j<RIG.gaps.length;j++) if(!GAP_W.includes(RIG.gaps[j])) RIG.gaps[j] = 150; }
@@ -805,26 +852,27 @@ const ACC = [['ST-YT0003D','זוג J-Cup סנדוויץ׳'],['ST-RJC','זוג J-
 /* תמחור: ערכה לתחנה הראשונה, וכל תחנה נוספת לפי הקורות והמוטות שנוספים (רומן, 15/11/2026) */
 function rigParts(){
   rigNorm();
-  const m = [], add = (sku, name, q, note) => { if(q>0){ const r = m.find(x=>x.sku===sku); if(r){ r.q += q; if(note && !r.note) r.note = note; } else m.push(note ? {sku, name, q, note} : {sku, name, q}); } }, ext = RIG.n - 1, col = ' · קורות ' + colLabel(RIG.color);
+  const m = [], add = (sku, name, q, h) => { if(q>0){ const r = m.find(x=>x.sku===sku); if(r){ r.q += q; if(h && !r.note){ r.note = h.t; r.tip = h.tip; } } else m.push(h ? {sku, name, q, note: h.t, tip: h.tip} : {sku, name, q}); } }, ext = RIG.n - 1, col = ' · קורות ' + colLabel(RIG.color);
   const n150 = RIG.gaps.filter(g=>g===150).length, n180 = RIG.gaps.filter(g=>g===180).length, rows = RIG.type==='wall' || helios() ? 1 : 2;
   /* כל תחנה נוספת: שתי קורות לכל שורה ומתח 109 בכל שורה; בריג קיר גם זרוע לקיר לכל קורה, בעצמאי מוט עומק 150 לכל זוג קורות */
   if(RIG.type==='wall'){
-    add('ST-WMR-1S', 'ריג קיר Steel, תחנה אחת' + col, 1, ext ? '' : H_KIT);
-    add('ST-UP265', 'קורת ריג 265 ס״מ · ' + colLabel(RIG.color), 2*ext);   /* עם הצבע: שני ריגים בצבעים שונים לא מתמזגים לשורה אחת בריכוז (27/11/2026) */ add('ST-SBAR109', 'מוט מתח 109 ס״מ', 3*ext, H_ST);
+    add('ST-WMR-1S', 'ריג קיר Steel, תחנה אחת' + col, 1, ext ? null : H_NOTE.st());
+    add('ST-UP265', 'קורת ריג 265 ס״מ · ' + colLabel(RIG.color), 2*ext);   /* עם הצבע: שני ריגים בצבעים שונים לא מתמזגים לשורה אחת בריכוז (27/11/2026) */ add('ST-SBAR109', 'מוט מתח 109 ס״מ', 3*ext, H_NOTE.st());
   } else if(helios()){
     /* Helios: ערכה שלמה לכל תחנה (2 קורות, 2 רגליות A, מתח 109), ובין הערכות מוט 150/180. עד 27/11/2026 נספרו בתחנה נוספת קורות
        ורגליות בנפרד — אבל הרגלית לא נמכרת לבד, ובסל נראתה "ערכה אחת" מול שתי תחנות בהדמיה (רומן) */
-    add('W6001-S1-ISR', 'ריג עצמאי Helios, תחנה אחת' + col, RIG.n, H_KIT);
+    add('W6001-S1-ISR', 'ריג עצמאי Helios, תחנה אחת' + col, RIG.n, H_NOTE.st());
   } else {
-    add('ST-FSR-1S', 'ריג עצמאי Steel, תחנה אחת' + col, 1, ext ? '' : H_KIT);
+    add('ST-FSR-1S', 'ריג עצמאי Steel, תחנה אחת' + col, 1, ext ? null : H_NOTE.st());
     /* מוטות העומק (150) בראש הריג — בלי הערת גובה; כשגם המתח שבין התחנות 150, ההערה שלו נכנסת לאותה שורה */
-    add('ST-UP265', 'קורת ריג 265 ס״מ · ' + colLabel(RIG.color), 4*ext); add('ST-SBAR109', 'מוט מתח 109 ס״מ', 2*ext, H_ST); add('ST-SBAR150', 'מוט מתח 150 ס״מ', 2*ext);
+    add('ST-UP265', 'קורת ריג 265 ס״מ · ' + colLabel(RIG.color), 4*ext); add('ST-SBAR109', 'מוט מתח 109 ס״מ', 2*ext, H_NOTE.st()); add('ST-SBAR150', 'מוט מתח 150 ס״מ', 2*ext);
   }
-  add('ST-SBAR150', 'מוט מתח 150 ס״מ', rows*n150, H_SPAN); add('ST-SBAR180', 'מוט מתח 180 ס״מ', rows*n180, H_SPAN);
-  ACC.forEach(([sku, name])=>add(sku, name, RIG.acc[sku]||0));
-  /* ברגים לכל קורה, כמו בהדמיה: 2 לחיבור המתח, ועוד 2 לזרוע הקיר בריג קיר או 4 למוטות העומק בריג עצמאי Steel. ב-Helios רק 2 — עד 27/11/2026
-     נספרו בו 4 כמו בריג קיר, כלומר גם ברגים לזרוע קיר שאין בו (נמצא בהשוואת ההדמיה לסל) */
-  add('M12x95', 'סט בורג M12×95 עם דסקיות ואום', (helios() ? 2 : rows===1 ? 4 : 8) * 2*RIG.n);
+  add('ST-SBAR150', 'מוט מתח 150 ס״מ', rows*n150, H_NOTE.gap()); add('ST-SBAR180', 'מוט מתח 180 ס״מ', rows*n180, H_NOTE.gap());
+  ACC.forEach(([sku, name])=>add(sku, name, RIG.acc[sku]||0, sku==='ST-BAR-70M' ? H_NOTE.mgb() : null));
+  /* ברגים לכל קורה, כמו בהדמיה: בורג לכל חור שבו נתפס מוט מתח (postBarHoles — 2 כשהמתחים באותו גובה), ועוד 2 לזרוע הקיר
+     בריג קיר או 4 למוטות העומק בריג עצמאי Steel. ב-Helios — רק המתחים (עד 27/11/2026 נספרו בו גם ברגים לזרוע קיר שאין בו) */
+  let nb = 0; for(let k=0;k<2*RIG.n;k++) for(let ri=0;ri<rows;ri++) nb += postBarHoles(k, ri).length;
+  add('M12x95', 'סט בורג M12×95 עם דסקיות ואום', nb + (RIG.type==='wall' ? 2 : rows===2 ? 4 : 0) * 2*RIG.n);
   return m;
 }
 let hot = -1;
@@ -1174,10 +1222,11 @@ function rigAccessories(PG, PX, free){
       put(box(7,20,1), steel, g, 0, y, 3.6); put(G.hook || (G.hook = new THREE.TorusGeometry(9, 2, 8, 16, Math.PI)), steel, g, 0, y, 4, 0, -RZ, -RZ); },
     'ST-YP122E002': g=>{ const y = 236;   /* מטרה לכדור: דיסקה עגולה על מוט, מעל ראש הקורה */
       put(box(6.4,30,0.9), steel, g, 0, y - 10, 3.5); put(box(5,40,1), steel, g, 0, y + 12, 4.5); put(cyl(20,0.9), steel, g, 0, y + 40, 5.2, RZ); put(tor(14,0.5), V3.hotMat, g, 0, y + 40, 5.8); },
-    /* מתח קופים — המודל שרומן העלה (27/11/2026): פלטות הצד על הדפנות הפנימיות של שתי קורות התחנה, מתחת למתח 109 (226) */
-    'ST-BAR-70M': (g, L)=>tag(mdlPut('mgb', g, accMatM, 0, 192, 0)),
-    'ST-ISC13': (g, L)=>{                   /* שאקל: לוחית תלויה מהמוט וחוליה מתכתית */
-      put(box(1,6,6.5), steel, g, 3 + L/2, 220.5, 0); put(tor(2.4,0.5), V3.boltMat, g, 3 + L/2, 214.6, 0, 0, RZ); }
+    /* מתח קופים (מולטי גריפ) — המודל שרומן העלה (27/11/2026): פלטות הצד על הדפנות הפנימיות של שתי קורות התחנה — אותם חורים
+       של מתח 109, ולכן במקומו (רומן: "במקום מתח 109"; build3D לא מצייר את 109 בתחנה הזו). הידיות (y≈17.5 במודל) בגובה מההגדרות */
+    'ST-BAR-70M': (g, L)=>tag(mdlPut('mgb', g, accMatM, 0, CFG.mgb + 0.5 - 17.5, 0)),
+    'ST-ISC13': (g, L, dy)=>{               /* שאקל: לוחית תלויה מהמוט וחוליה מתכתית; dy — גובה המוט ביחס ל-230 */
+      put(box(1,6,6.5), steel, g, 3 + L/2, 220.5 + dy, 0); put(tor(2.4,0.5), V3.boltMat, g, 3 + L/2, 214.6 + dy, 0, 0, RZ); }
   };
   const n = PX.length/2;
   /* המקומות בשורה r לכל סוג: תחנות, קורות או מוטות. r=1 — הצד האחורי של ריג עצמאי */
@@ -1195,7 +1244,7 @@ function rigAccessories(PG, PX, free){
       if(kind==='pair') L.st.slice(0, q).forEach(([r, j])=>{ draw(PG[r][2*j], r ? 1 : 0); draw(PG[r][2*j+1], r ? 0 : 1); });
       else if(kind==='post') L.po.slice(0, q).forEach(([r, k])=>draw(PG[r][k]));
       else if(kind==='station') L.st.slice(0, q).forEach(([r, j])=>draw(barHost(r, 2*j), 109.2));
-      else L.ba.slice(0, q).forEach(([r, j, t])=>t==='st' ? draw(barHost(r, 2*j), 109.2) : draw(barHost(r, 2*j+1), RIG.gaps[j]));
+      else L.ba.slice(0, q).forEach(([r, j, t])=>t==='st' ? draw(barHost(r, 2*j), 109.2, (mgbAt(r, j) ? CFG.mgb : CFG.st) - BAR_H.def) : draw(barHost(r, 2*j+1), RIG.gaps[j], CFG.gap - BAR_H.def));
     });
   }
   CUR = null;
@@ -1637,14 +1686,16 @@ function build3D(quiet){
       rows.forEach((Z, ri)=>{
         const pg = new THREE.Group(); pg.position.set(X, 0, Z); if(ri) pg.rotation.y = Math.PI; group.add(pg); PG[ri].push(pg);
         mesh('rpost', postMat, pg); mesh('rtrim', steel, pg);
-        /* מוט המתח שאחרי הקורה: 109 בתוך התחנה, 150/180 אל התחנה הבאה */
-        if(st) mesh('sbar109', steel, group, X + 3, 0).position.z = Z;
+        /* מוט המתח שאחרי הקורה: 109 בתוך התחנה, 150/180 אל התחנה הבאה. הגובה מההגדרות (CFG — המודל בגובה 230); בתחנה עם
+           מולטי גריפ — הוא במקום מתח 109 (rigAccessories) */
+        if(st){ if(!mgbAt(ri, j)) mesh('sbar109', steel, group, X + 3, CFG.st - BAR_H.def).position.z = Z; }
         /* בין התחנות: 150 — המוט מ-Fusion, מוארך באמצע (זהה ל-ST-SBAR150 שבחלקי החיבור); 180 — המודל של ST-SBAR180, עם פלטות
            גבוהות ומשולשי חיזוק (27/11/2026) */
-        else if(j < RIG.n-1){ if(RIG.gaps[j] === 180) mdlPut('bar180', group, ()=>steel, X + 3, 0, Z); else mesh(barGeo(RIG.gaps[j]), steel, group, X + 3, 0).position.z = Z; }
-        [225.8, 235.8].forEach(h=>bolt(X, h, Z, true));
+        else if(j < RIG.n-1){ const dy = CFG.gap - BAR_H.def; if(RIG.gaps[j] === 180) mdlPut('bar180', group, ()=>steel, X + 3, dy, Z); else mesh(barGeo(RIG.gaps[j]), steel, group, X + 3, dy).position.z = Z; }
+        /* ברגים בחורים שבהם נתפסים המוטות (מרכז החור = נומינלי + 0.5; ראש הבורג במודל 0.3 מעליו) */
+        postBarHoles(k, ri).forEach(h=>bolt(X, h + 0.8, Z, true));
       });
-      if(!st && j < RIG.n-1) anchors.push({g:group, p:[X + 3 + RIG.gaps[j]/2, 238, 4], kind:'gap', j});
+      if(!st && j < RIG.n-1) anchors.push({g:group, p:[X + 3 + RIG.gaps[j]/2, 238 + CFG.gap - BAR_H.def, 4], kind:'gap', j});
       if(deep){ mesh('sbar150', steel, group, X, 0); [233.3, 243.3].forEach(h=>{ bolt(X, h, 0, false); bolt(X, h, -RIG_DEPTH, false); }); }
       else if(hel) mdlPut('hfoot', PG[0][k], ()=>steel, 0, 0, 0);   /* Helios: רגלית A שחורה לכל קורה (נחתכה מהמודל של Helios) */
       else {
@@ -1798,8 +1849,8 @@ async function makeRender(o){
   } finally { hidden.forEach(m=>m.visible = true); draw(); }
   if(o.wm !== false){
     const logo = await logoImage('#0b2233'), ar = 227.3/852.7;
-    const lw = W*0.46; x.globalAlpha = 0.09; x.drawImage(logo, (W - lw)/2, (H - lw*ar)/2, lw, lw*ar);
-    const sw = W*0.13; x.globalAlpha = 0.55; x.drawImage(logo, W - sw - W*0.025, H - sw*ar - W*0.025, sw, sw*ar);
+    const lw = W*0.46; x.globalAlpha = 0.081;   /* אטימות 8.1% = שקיפות 91.9% (רומן: "שקוף יותר ב-10%" — היה 9%) */ x.drawImage(logo, (W - lw)/2, (H - lw*ar)/2, lw, lw*ar);
+    const sw = W*0.13; x.globalAlpha = 0.495;   /* אטימות 49.5% = שקיפות 50.5% (היה 55%) */ x.drawImage(logo, W - sw - W*0.025, H - sw*ar - W*0.025, sw, sw*ar);
     x.globalAlpha = 1;
   }
   return out;
@@ -2000,8 +2051,10 @@ function renderParts(){
     const img = D[r.sku] ? `<img alt="" src="${D[r.sku].img}">` : '<span class="noimg"></span>';
     const right = hw ? `<b>${r.q} יח׳</b>` : u==null ? `<span class="quote">לפי הצעה</span><small>${r.q} יח׳</small>` : `<b>${fmtMoney(u*r.q)}</b><small>${r.q} × ${fmtMoney(u)}</small>`;
     const nm = MODELS_CHECK && NO_MODEL[r.sku];
-    return `<li data-sku="${esc(r.sku)}"${nm ? ' class="nomodel"' : ''}>${img}<div class="nm"><b>${esc(r.name)}</b>${hw ? '' : `<span class="sku">${esc(r.sku)}</span>`}${r.note ? `<small class="pn">${esc(r.note)}</small>` : ''}${nm ? '<small class="nm-tag">אין מודל</small>' : ''}</div><div class="pr">${right}</div></li>`;
+    return `<li data-sku="${esc(r.sku)}"${nm ? ' class="nomodel"' : ''}>${img}<div class="nm"><b>${esc(r.name)}</b>${hw ? '' : `<span class="sku">${esc(r.sku)}</span>`}${r.note ? `<small class="pn">${r.tip ? `<button type="button" class="ib" aria-expanded="false" aria-label="הסבר: ${esc(r.note)}">i</button>` : ''}${esc(r.note)}</small>${r.tip ? `<small class="tip" hidden>${esc(r.tip)}</small>` : ''}` : ''}${nm ? '<small class="nm-tag">אין מודל</small>' : ''}</div><div class="pr">${right}</div></li>`;
   }).join('') || '<li class="hint">אין חלקים.</li>';
+  /* כפתור i: פותח ומקפל את ההסבר שמתחת להערה (מקלדת ומגע — כפתור אמיתי, לא title) */
+  $('parts').querySelectorAll('.ib').forEach(b=>b.onclick = e=>{ e.preventDefault(); const tp = b.closest('.nm').querySelector('.tip'), on = tp.hidden; tp.hidden = !on; b.setAttribute('aria-expanded', on); });
   const n = P.filter(r=>!NOPRICE[r.sku]).length;
   $('partsCount').textContent = n ? ` · ${cnt(n, 'פריט אחד', 'פריטים')}` : '';
   const bolts = P.find(r=>NOPRICE[r.sku]);
@@ -2139,7 +2192,8 @@ function designInfo(kind, st){
       spec: [cnt(sh, 'מדף אחד', 'מדפים'), hasTurn() ? (S.corners ? 'פינה עם ' + cnt(S.corners, 'מדף פינתי', 'מדפים פינתיים') : 'פינה') : '', 'רגליים: ' + CNAME[S.color]].filter(Boolean).join(' · ')};
   });
 }
-/* אזהרת עיגון לריג (רומן, 27/11/2026) — בתקציר ובבקשה המודפסת, עם סמל אזהרה. במידוף אין */
+/* אזהרת עיגון לריג (רומן, 27/11/2026) — עם סמל אזהרה: תווית צפה בהדמיה, בתחתית הפירוט ובבקשה המודפסת ("תעשה תווית צפה
+   בהדמיה עצמה ותשנה את המיקום הנוכחי לתחתית ... בפירוט"). במידוף אין */
 function anchorNote(kind, st){
   if(kind!=='rig') return '';
   return (st && st.type)==='wall' ? 'חובה לעגן לרצפה ולקיר בטון.' : 'חובה לעגן לרצפת בטון.';
@@ -2149,8 +2203,9 @@ function designLines(kind, st){
   return withDesign(kind, st, ()=>{
     if(kind==='rig'){
       const out = [`${RIG.type==='wall' ? 'ריג קיר (מחובר לקיר, שורה אחת)' : helios() ? 'ריג עצמאי Helios (שורה אחת, רגלית A לכל קורה)' : 'ריג עצמאי (שתי שורות)'} · ${cnt(RIG.n, 'תחנה אחת', 'תחנות')}`];
-      out.push('מתח בתוך התחנה: ' + H_ST);
-      if(RIG.gaps.length) out.push('בין התחנות: ' + RIG.gaps.map((g, j)=>`מתח ${j+1} = ${g} ס״מ`).join(' · ') + ' · ' + H_SPAN);
+      out.push(H_NOTE.st().t);
+      if(RIG.gaps.length) out.push('בין התחנות: ' + RIG.gaps.map((g, j)=>`מתח ${j+1} = ${g} ס״מ`).join(' · ') + ' · ' + H_NOTE.gap().t.replace('גובה המתח בין התחנות', 'גובה'));
+      if(RIG.acc['ST-BAR-70M']) out.push('מולטי גריפ: ' + H_NOTE.mgb().t.replace('גובה המתח בתוך התחנה', 'גובה'));
       out.push(`קורות: ${colLabel(RIG.color)} · מוטות מתח: שחור מגורען (RAL 9005)`);
       /* ריג עצמאי עם אביזרים מאחור: כמה בכל צד, כדי שאיש המכירות יידע איפה להרכיב */
       const acc = ACC.filter(([s])=>RIG.acc[s]).map(([s, nm])=>{ const q = RIG.acc[s], b = accBack(s);
@@ -2183,7 +2238,9 @@ function quoteNote(t){
 function renderSummary(t){
   const st = TAB==='rig' ? RIG : S, info = designInfo(TAB, st), store = PMODE==='store';
   $('sumKind').textContent = info.kind; $('sumTitle').textContent = info.title; $('sumSpec').textContent = info.spec;
-  const an = anchorNote(TAB, st); $('sumAnchor').hidden = !an; $('sumAnchor').querySelector('span').textContent = an || '';
+  const an = anchorNote(TAB, st);
+  /* התווית הצפה — רק כשיש הדמיה (בלי WebGL ובלי ציור בתוכנה אין על מה לצוף) */
+  for(const id of ['sumAnchor', 'anchorTag']){ const el = $(id); el.hidden = !an || (id==='anchorTag' && !V3.ok); el.querySelector('span').textContent = an || ''; }
   document.querySelectorAll('#pmode button').forEach(b=>b.setAttribute('aria-pressed', b.dataset.pm===PMODE));
   const big = store ? money(t.sum) : '₪' + fmt0.format(t.csum), empty = TAB==='shelf' && !shelfTotal();
   const sub = store ? (t.quote ? 'לפני מע״מ · חלקי' : `לפני מע״מ · ${money(t.sum + t.vat)} כולל מע״מ`) : 'מחיר באתר, כולל מע״מ';
@@ -2542,8 +2599,8 @@ async function buildPrint(){
     return `<div class="pd-item">${it.img ? `<img alt="" src="${esc(it.img)}">` : '<div></div>'}<div>
       <div class="ttl"><span>${n+1}. ${esc(info.kind)} · ${esc(info.title)}${it.qty > 1 ? ` × ${it.qty}` : ''}</span><span>${t.quote ? 'חלקי ' : ''}${money(t.sum*it.qty)}</span></div>
       <div class="sp">${designLines(it.kind, it.st).map(esc).join('<br>')}${it.dims ? '<br>מידות: ' + esc(dimsText(it.dims)) : ''}</div>
-      ${anchorNote(it.kind, it.st) ? `<div class="pd-warn"><svg class="ico" aria-hidden="true"><use href="#i-warn"/></svg>${esc(anchorNote(it.kind, it.st))}</div>` : ''}
-      ${mini}</div></div>`;
+      ${mini}
+      ${anchorNote(it.kind, it.st) ? `<div class="pd-warn"><svg class="ico" aria-hidden="true"><use href="#i-warn"/></svg>${esc(anchorNote(it.kind, it.st))}</div>` : ''}</div></div>`;
   }).join('');
   const L = cartLines();
   let k = 0;
@@ -2671,6 +2728,7 @@ uiInit();
 cartInit();
 acctInit();
 render();
+loadCfg();          /* גובהי המתח מההגדרות של המערכת — כשהתשובה מגיעה, ציור נוסף */
 cartFromHash();
 window.addEventListener('hashchange', cartFromHash);
 </script>
