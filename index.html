@@ -521,6 +521,8 @@ textarea.copy{width:100%;min-height:90px;font:12.5px/1.45 var(--f-body);border:1
           <div class="seg" id="rtype" role="group" aria-label="סוג הריג"></div>
           <div class="cg"><span class="cl">תחנות</span><div class="step" id="rcount"></div></div>
           <button type="button" class="dd" id="rcolorBtn" aria-haspopup="dialog" aria-expanded="false" aria-controls="m-rcolor"></button>
+          <!-- האביזרים מתחת להדמיה — ב-1440×900 מחוץ למסך, ואין שום רמז שהם שם (סוקר, 27/11/2026) -->
+          <button type="button" class="dd" id="accBtn" aria-controls="insp">אביזרים<span class="mut" id="accN"></span><svg class="ico chev"><use href="#i-chev"/></svg></button>
         </div>
         <div class="view">
           <div class="cv">
@@ -1733,6 +1735,9 @@ function renderRigUI(){
   $('rtype').querySelectorAll('button').forEach(b=>b.onclick=()=>{ RIG.type = b.dataset.k; render(); });
   $('rcount').replaceWith(Object.assign(stepper(RIG.n, 1, RIG_MAX, v=>{ RIG.n = v; render(); }, 'תחנות'), {id:'rcount'}));
   colorBtn('rcolorBtn', 'קורות', RIG.color);
+  const nAcc = Object.values(RIG.acc||{}).reduce((x, y)=>x + (y||0), 0);
+  $('accN').textContent = nAcc ? ' · ' + nAcc : '';
+  $('accBtn').setAttribute('aria-label', nAcc ? `אביזרים, ${cnt(nAcc, 'אביזר אחד נבחר', 'אביזרים נבחרו')}` : 'אביזרים');
   $('rcolname').textContent = colLabel(RIG.color);
   swatches('rswatches', RIG.color, ral=>{ RIG.color = ral; render(); });
   /* אביזרים: כרטיס לכל אביזר עם תמונה, מחיר וכמות. בלי הדמיה אין כפתורי "מתח", ולכן אורך המתח נבחר כאן */
@@ -2083,6 +2088,8 @@ function uiInit(){
   $('cornerBtn').onclick = ()=>openMenu($('cornerBtn'), $('m-corner'));
   $('colorBtn').onclick = ()=>openMenu($('colorBtn'), $('m-color'));
   $('rcolorBtn').onclick = ()=>openMenu($('rcolorBtn'), $('m-rcolor'));
+  /* קפיצה לאביזרים (מתחת להדמיה) והפוקוס לכפתור הראשון שם */
+  $('accBtn').onclick = ()=>{ closeMenu(); closePop(); if(V3.full) setFull(false); $('insp').scrollIntoView({behavior:'smooth', block:'start'}); const f = $('insp').querySelector('.step button:not(:disabled)'); if(f) f.focus({preventScroll:true}); };
   $('pmode').addEventListener('click', e=>{ const b = e.target.closest('[data-pm]'); if(!b || PMODE===b.dataset.pm) return; PMODE = b.dataset.pm; render(); });
   [$('addcart'), $('mbAdd'), $('fsAdd')].forEach(b=>b.onclick = ()=>addCurrent(false));
   $('addnew').onclick = ()=>addCurrent(true);
