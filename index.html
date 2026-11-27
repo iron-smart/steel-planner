@@ -1,4 +1,4 @@
-<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="מתכנן Steel של איירון פיטנס — מידוף וריגים בתלת־ממד, רשימת חלקים ומחיר"><meta name="robots" content="noindex"><title>מתכנן Steel</title>
+<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="מודל תכנון של איירון פיטנס — מידוף וריגים בתלת־ממד, רשימת חלקים ומחיר"><meta name="robots" content="noindex"><title>מודל תכנון</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="color-scheme" content="light dark">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -193,6 +193,12 @@ h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance}
 #overlay{position:absolute;inset:0;pointer-events:none;overflow:hidden}
 .plus{all:unset;position:absolute;left:0;top:0;pointer-events:auto;cursor:pointer;box-sizing:border-box;height:30px;min-width:30px;border-radius:15px;background:#457a5f;color:#fff;border:2px solid #fff;font-weight:700;font-size:15px;line-height:1;display:grid;place-items:center;box-shadow:0 2px 8px rgba(0,0,0,.3)}
 .plus.wide{padding:0 12px;font-size:13.5px;white-space:nowrap}
+/* כפתור i על מוט המתח (27/11/2026): עיגול לבן קטן עם i נטויה; במגע גדול יותר */
+.plus.info{height:22px;min-width:22px;width:22px;border-radius:50%;background:#fff;color:#002d48;border:2px solid #002d48;font:italic 700 13px/1 Georgia,'Times New Roman',serif;box-shadow:0 1px 5px rgba(0,0,0,.28)}
+.plus.info:hover,.plus.info:focus-visible{background:#002d48;color:#fff}
+.pop.ipop{white-space:normal;width:280px;max-width:calc(100vw - 24px)}   /* .pop הוא nowrap (כפתורי בחירה); הסבר — טקסט רץ */
+.pop.ipop .phead b{font-size:13.5px;line-height:1.35}
+.pop .itxt{margin:2px 0 0;font-size:13px;line-height:1.5}
 .plus.gapb{display:inline-flex;align-items:center;gap:4px;background:#002d48;color:#fff;font-size:12.5px;height:26px;border-radius:13px}
 .plus.gapb::after{content:"▾";opacity:.7}
 .plus.gapb.dot{width:16px;min-width:16px;height:16px;padding:0;font-size:0;gap:0}
@@ -297,14 +303,7 @@ html.lock{overflow:hidden}
 .pl .noimg{background:var(--surface-3);border-color:transparent}
 .pl .nm{min-width:0}
 .pl .nm b{display:block;font-weight:600;font-size:13.5px;line-height:1.3}
-.pl .pn{display:flex;align-items:center;gap:5px;color:var(--muted);font-size:12px;line-height:1.35;margin-top:2px}
-/* כפתור i להסבר על הערת הגובה (רומן, 27/11/2026: "להוסיף סמל כפתור קטן i"). ביעד מגע — שטח לחיצה רחב מהעיגול */
-.pl .ib{all:unset;flex:none;box-sizing:border-box;width:16px;height:16px;border-radius:50%;border:1.5px solid currentColor;display:grid;place-items:center;font:700 10.5px/1 Georgia,'Times New Roman',serif;font-style:italic;color:var(--ink-2);cursor:pointer;position:relative}
-.pl .ib::after{content:"";position:absolute;inset:-8px}
-.pl .ib[aria-expanded="true"]{background:var(--ink-2);color:var(--surface);border-color:var(--ink-2)}
-.pl .ib:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
-.pl .tip{display:block;margin-top:4px;padding:6px 9px;border-radius:8px;background:var(--surface-3);color:var(--ink-2);font-size:12px;line-height:1.45}
-.pl .tip[hidden]{display:none}
+.pl .pn{display:block;color:var(--muted);font-size:12px;line-height:1.35;margin-top:2px}
 .sku{font-family:var(--f-mono);font-size:11.5px;color:var(--muted);direction:ltr;display:inline-block;unicode-bidi:isolate}
 .pl .pr{text-align:left;font-variant-numeric:tabular-nums;white-space:nowrap;line-height:1.3}
 .pl .pr b{display:block;font-size:13.5px;font-weight:700}
@@ -437,6 +436,7 @@ textarea.copy{width:100%;min-height:90px;font:12.5px/1.45 var(--f-body);border:1
   .ac .step,.ci .bot .step{height:42px}
   .ac .step button,.ci .bot .step button{width:40px}
   .vseg button,.vbtn{height:40px}
+  .plus.info{height:30px;min-width:30px;width:30px;font-size:16px}
   .vbtn.icon{width:42px}
   .plus{height:40px;min-width:40px;border-radius:20px}
   .plus.gapb{height:36px;border-radius:18px;font-size:13px;padding:0 12px}
@@ -528,7 +528,7 @@ textarea.copy{width:100%;min-height:90px;font:12.5px/1.45 var(--f-body);border:1
     <div class="brand">
       <svg class="logo" viewBox="0 0 852.7 227.3" fill="currentColor" role="img" aria-label="IRON FITNESS"><path d="M24.3,202.5v-6.8H0v30.9h8.7V216h13.7v-6.8H8.8v-6.8h15.5V202.5z"/><rect x="138.8" y="195.8" width="8.7" height="30.9"/><path d="M270.9,226.7h8.7v-24h9.5v-6.9h-27.7v6.9h9.5V226.7z"/><path d="M423.7,195.8v16.5L410,195.8h-7.2v30.9h8.6v-16.5l13.7,16.5h7.2v-30.9H423.7z"/><path d="M557.6,219.9v-5.7h13.7v-6.5h-13.7v-5.2h15.6v-6.8h-24.3v30.9h24.8v-6.8h-16.1V219.9z"/><path d="M700,227.3c9.2,0,13.7-4.6,13.7-10c0-11.4-17.5-7.9-17.5-12.6c0-1.5,1.3-2.8,5-2.8c2.7,0,5.6,0.8,8.6,2.4 l2.7-6.5c-3.1-1.8-7.2-2.7-11.2-2.7c-9.2,0-13.7,4.5-13.7,10c0,11.5,17.6,7.9,17.6,12.8c0,1.5-1.4,2.5-5,2.5s-7.5-1.2-10.2-3 l-2.9,6.5C689.9,225.9,694.9,227.3,700,227.3z"/><path d="M839,227.3c9.2,0,13.7-4.6,13.7-10c0-11.4-17.5-7.9-17.5-12.6c0-1.5,1.3-2.8,5-2.8c2.7,0,5.6,0.8,8.6,2.4 l2.7-6.5c-3-1.8-7.2-2.7-11.2-2.7c-9.2,0-13.7,4.5-13.7,10c0,11.5,17.6,7.9,17.6,12.8c0,1.5-1.4,2.5-5,2.5s-7.5-1.2-10.2-3l-2.9,6.5 C828.9,225.9,834,227.3,839,227.3z"/><path fill-rule="evenodd" d="M62.1,3.7c0-2.1-1.7-3.7-3.7-3.7H3.7C1.7,0,0,1.7,0,3.7v164.4c0,2.1,1.7,3.7,3.7,3.7h54.7 c2.1,0,3.7-1.7,3.7-3.7C62.1,168.1,62.1,3.7,62.1,3.7z"/><path fill-rule="evenodd" d="M683.1,82.8c24.9,18.4,119.4,88.3,119.4,88.3c0.6,0.5,1.4,0.7,2.2,0.7H849c2.1,0,3.7-1.7,3.7-3.7V3.7 c0-2.1-1.7-3.7-3.7-3.7h-54.7c-2.1,0-3.7,1.7-3.7,3.7v85.7l-120-88.7C670,0.2,669.2,0,668.4,0h-43.7c-2.1,0-3.7,1.7-3.7,3.7v164.4 c0,2.1,1.7,3.7,3.7,3.7h54.7c2.1,0,3.7-1.7,3.7-3.7L683.1,82.8L683.1,82.8z"/><path fill-rule="evenodd" d="M118,0H90.7c-2,0-3.7,1.7-3.7,3.8v164.3c0,2.1,1.7,3.7,3.7,3.7h54.7c2.1,0,3.7-1.7,3.7-3.7V118h54.2l54.1,52.8 c0.7,0.7,1.6,1.1,2.6,1.1h70.5c1.5,0,2.9-0.9,3.4-2.3c0.6-1.4,0.2-3-0.8-4.1L284.5,118h2c18.1,0,32.8-14.7,32.8-32.8V32.7 c0-18.1-14.7-32.7-32.8-32.7H119.8C119.2,0,118.6,0,118,0L118,0z M258.5,52.2v13.7H149.2V52.2H258.5z"/><path fill-rule="evenodd" d="M463,0v50.9h-58V121h58v50.9h-86c-18.1,0-32.8-14.7-32.8-32.8V32.7c0-18,14.7-32.7,32.8-32.7H463z M476.5,0 h87.3c18.1,0,32.8,14.7,32.8,32.7V139c0,18.1-14.7,32.8-32.8,32.8h-87.3V121h59.3V50.9h-59.3V0z"/></svg>
       <span class="vr" aria-hidden="true"></span>
-      <h1>מתכנן Steel</h1>
+      <h1>מודל תכנון</h1>
     </div>
     <nav class="tabs" role="tablist" aria-label="סוג המתקן">
       <button type="button" role="tab" data-tab="shelf" aria-controls="stagepanel" aria-selected="true">מידוף</button>
@@ -937,7 +937,7 @@ function geo(name){
   return GEO[name] = g;
 }
 /* ---------- המודלים של איירון (רומן, 17/11/2026: "תשתמש במודלים שלנו") ----------
-   mdl.js נבנה מקובצי ה-glTF/FBX שבתיקייה "מתכנן Steel/מודלים", לפי קטגוריות (models/export.py ⇒ pack.py).
+   mdl.js נבנה מקובצי ה-glTF/FBX שבתיקייה "מודל תכנון/מודלים" (עד 27/11/2026 "מתכנן Steel"), לפי קטגוריות (models/export.py ⇒ pack.py).
    כל מודל: מאגר קודקודים אחד וכמה חלקים, צבע לכל חלק. */
 const MGEO = {};
 function mdlParts(name){
@@ -1081,6 +1081,7 @@ function positionOverlay(){
     if(!front || Math.abs(v.x) > 1.06 || Math.abs(v.y) > 1.06){ show(a, false); continue; }
     let hw = a.w/2, hh = a.h/2, dot = false;
     const x = Math.max(hw+4, Math.min(w-hw-4, (v.x*0.5+0.5)*w)); let y = Math.max(hh+4, Math.min(h-hh-4, (-v.y*0.5+0.5)*h));
+    if(a.kind==='info' && hit(x, y, hw, hh)){ show(a, false); continue; }
     if(a.kind==='gap' && hit(x, y, hw, hh)){
       /* קודם מנסים להזיז את הכפתור שורה למעלה או למטה; אם אין מקום — נקודה, גם היא עם הזזה */
       const free = (s, n) => { for(let q=0;q<=n;q++) for(const d of q ? [-q, q] : [0]){ const yy = y + d*(2*s+6); if(yy > s+4 && yy < h-s-4 && !hit(x, yy, s===hh ? hw : s, s)) return yy; } return null; };
@@ -1092,6 +1093,13 @@ function positionOverlay(){
     show(a, true); placed.push([x, y, hw, hh]);
     a.el.style.transform = `translate(${Math.round(x-hw)}px,${Math.round(y-hh)}px)`;
   }
+}
+/* הסבר על גובה המתח מעל המוט: אותה חלונית צפה, עם ההערה ככותרת וההסבר בגוף. בריחוף — בלי להעביר את המיקוד לחלונית */
+function popInfo(pos, n, hover, btn){
+  const act = document.activeElement;
+  openPop(pos, n.t, `<p class="itxt">${esc(n.tip)}</p>`, ()=>{});
+  POP.info = btn; POP.hover = !!hover; POP.el.classList.add('ipop'); positionOverlay();   /* המידות השתנו עם ipop (טקסט רץ) — למקם מחדש */
+  if(hover && act && act.focus) act.focus({preventScroll:true});
 }
 /* חלונית צפה ליד הנקודה שנלחצה: בחירת גובה לרגל, עמודה חדשה, או סוג המדף שמוסיפים */
 let POP = null;
@@ -1174,7 +1182,7 @@ function popLeg(pos, idx){
 const ACC_KIND = {'ST-YT0003D':'pair','ST-RJC':'pair','ST-SPA':'pair','ST-W6050':'pair','ST-W6153-S':'pair',
   'ST-R-DIP':'post','ST-LAN':'post','ST-WH':'post','ST-IBH':'post','ST-YP122E002':'post','ST-BAR-70M':'station','ST-ISC13':'bar'};
 /* ---------- בדיקת מודלים (רומן, 27/11/2026: "כל מה שאין לו מודל אמיתי בתיקיה תסמן בצבע אדום שאני אדע מה צריך להשלים") ----------
-   רק בכתובת עם ?models — חנות לא רואה אדום. מה שמצויר מצורות פשוטות (קופסאות וגלילים) ולא ממודל בתיקייה "מתכנן Steel/מודלים"
+   רק בכתובת עם ?models — חנות לא רואה אדום. מה שמצויר מצורות פשוטות (קופסאות וגלילים) ולא ממודל בתיקייה "מודל תכנון/מודלים"
    נצבע באדום בהדמיה, ומסומן בכרטיסי האביזרים ובפירוט. המבנה עצמו (רגליים, מדפים, קורות, מוטות) בנוי מה-CAD ואינו מסומן.
    כשאביזר מקבל מודל אמיתי — מוחקים אותו מ-NO_MODEL. rigtest בודק שהרשימה תואמת למה שבאמת מצויר מצורות */
 const MODELS_CHECK = /[?&]models(=|&|$)/.test(location.search);
@@ -1696,6 +1704,10 @@ function build3D(quiet){
         postBarHoles(k, ri).forEach(h=>bolt(X, h + 0.8, Z, true));
       });
       if(!st && j < RIG.n-1) anchors.push({g:group, p:[X + 3 + RIG.gaps[j]/2, 238 + CFG.gap - BAR_H.def, 4], kind:'gap', j});
+      /* כפתור i מעל המוט — גובה המתח (רומן, 27/11/2026: "מרחף מעל המודל תלת מימד"). רק בשורה הקדמית; במוט שבין התחנות —
+         מעל כפתור "מתח" שבמרכזו */
+      if(st) anchors.push({g:group, p:[X + 3 + 54.6, (mgbAt(0, j) ? CFG.mgb : CFG.st) + 0.5 + 13, 4], kind:'info', h: mgbAt(0, j) ? 'mgb' : 'st', j});
+      else if(j < RIG.n-1) anchors.push({g:group, p:[X + 3 + RIG.gaps[j]/2, CFG.gap + 0.5 + 34, 4], kind:'info', h:'gap', j});
       if(deep){ mesh('sbar150', steel, group, X, 0); [233.3, 243.3].forEach(h=>{ bolt(X, h, 0, false); bolt(X, h, -RIG_DEPTH, false); }); }
       else if(hel) mdlPut('hfoot', PG[0][k], ()=>steel, 0, 0, 0);   /* Helios: רגלית A שחורה לכל קורה (נחתכה מהמודל של Helios) */
       else {
@@ -1768,13 +1780,21 @@ function build3D(quiet){
   const ov = $('overlay'); ov.innerHTML = '';
   V3.picks = picks;
   /* כפתורי ההוספה קודם, "מתח" אחריהם: כך במקום צפוף ה"מתח" הוא שמתכווץ, לא ה-＋ */
-  anchors.sort((a, b)=>(a.kind==='gap') - (b.kind==='gap'));
+  /* ובסוף כפתורי i (גובה המתח): הם רק הסבר — כשאין להם מקום הם מוסתרים, ולא דוחקים כפתור פעולה */
+  const prio = a => a.kind==='info' ? 2 : a.kind==='gap' ? 1 : 0;
+  anchors.sort((a, b)=>prio(a) - prio(b));
   const lim = (el, text, why) => { el.className = 'limb'; el.textContent = text; el.title = why; el.setAttribute('aria-label', text + ': ' + why); el.onclick = ()=>note(why); };
   V3.anchors = anchors.map(a=>{
     const pos = new THREE.Vector3(a.p[0], a.p[1], a.p[2]).applyMatrix4(a.g.matrixWorld);
     const el = document.createElement('button'); el.type = 'button'; el.className = 'plus' + (a.kind==='shelf' ? '' : ' wide');
     if(a.kind==='station'){ el.textContent = '＋ תחנה'; el.onclick = ()=>{ RIG.n++; render(); }; }
     else if(a.kind==='gap'){ el.className = 'plus wide gapb'; el.textContent = 'מתח ' + RIG.gaps[a.j]; el.title = `מתח ${RIG.gaps[a.j]} ס״מ בין תחנה ${a.j+1} לתחנה ${a.j+2}: שינוי אורך`; el.setAttribute('aria-label', el.title); el.onclick = ()=>popGap(pos, a.j); }
+    else if(a.kind==='info'){ const n = H_NOTE[a.h]();
+      el.className = 'plus info'; el.textContent = 'i'; el.setAttribute('aria-label', n.t); el.setAttribute('aria-haspopup', 'dialog');
+      /* ריחוף בעכבר פותח, יציאה סוגרת; לחיצה (וגם מגע ומקלדת) פותחת וסוגרת */
+      const open = hover => { popInfo(pos, n, hover, el); };
+      el.onclick = ()=>{ if(POP && POP.info === el && !POP.hover){ closePop(); return; } open(false); };
+      if(!COARSE){ el.onmouseenter = ()=>{ if(!POP || POP.info !== el) open(true); }; el.onmouseleave = ()=>{ if(POP && POP.info === el && POP.hover) closePop(); }; } }
     else if(a.kind==='bay'){ el.textContent = '＋ עמודה'; el.onclick = ()=>popAddBay(pos); }
     else if(a.kind==='stmax') lim(el, `עד ${RIG_MAX} תחנות`, `אפשר לתכנן כאן עד ${RIG_MAX} תחנות בריג אחד`);
     else if(a.kind==='baymax') lim(el, `עד ${MAX_BAYS} עמודות`, `אפשר לתכנן כאן עד ${MAX_BAYS} עמודות במתקן אחד`);
@@ -1870,7 +1890,7 @@ async function downloadRender(){
     if(dl){
       try{ await dl.save({filename: name, data: blob}); toast('התמונה נשמרה'); }
       catch(e){ const c = e && e.code;
-        if(c !== 'declined') note(c === 'rate_limited' ? 'כבר פתוחה בקשת שמירה. מאשרים או סוגרים אותה, ומנסים שוב' : 'אי אפשר לשמור את התמונה כאן. פותחים את המתכנן בדפדפן ושומרים משם'); }
+        if(c !== 'declined') note(c === 'rate_limited' ? 'כבר פתוחה בקשת שמירה. מאשרים או סוגרים אותה, ומנסים שוב' : 'אי אפשר לשמור את התמונה כאן. פותחים את מודל התכנון בדפדפן ושומרים משם'); }
       return;
     }
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove();
@@ -2051,10 +2071,8 @@ function renderParts(){
     const img = D[r.sku] ? `<img alt="" src="${D[r.sku].img}">` : '<span class="noimg"></span>';
     const right = hw ? `<b>${r.q} יח׳</b>` : u==null ? `<span class="quote">לפי הצעה</span><small>${r.q} יח׳</small>` : `<b>${fmtMoney(u*r.q)}</b><small>${r.q} × ${fmtMoney(u)}</small>`;
     const nm = MODELS_CHECK && NO_MODEL[r.sku];
-    return `<li data-sku="${esc(r.sku)}"${nm ? ' class="nomodel"' : ''}>${img}<div class="nm"><b>${esc(r.name)}</b>${hw ? '' : `<span class="sku">${esc(r.sku)}</span>`}${r.note ? `<small class="pn">${r.tip ? `<button type="button" class="ib" aria-expanded="false" aria-label="הסבר: ${esc(r.note)}">i</button>` : ''}${esc(r.note)}</small>${r.tip ? `<small class="tip" hidden>${esc(r.tip)}</small>` : ''}` : ''}${nm ? '<small class="nm-tag">אין מודל</small>' : ''}</div><div class="pr">${right}</div></li>`;
+    return `<li data-sku="${esc(r.sku)}"${nm ? ' class="nomodel"' : ''}>${img}<div class="nm"><b>${esc(r.name)}</b>${hw ? '' : `<span class="sku">${esc(r.sku)}</span>`}${r.note ? `<small class="pn">${esc(r.note)}</small>` : ''}${nm ? '<small class="nm-tag">אין מודל</small>' : ''}</div><div class="pr">${right}</div></li>`;
   }).join('') || '<li class="hint">אין חלקים.</li>';
-  /* כפתור i: פותח ומקפל את ההסבר שמתחת להערה (מקלדת ומגע — כפתור אמיתי, לא title) */
-  $('parts').querySelectorAll('.ib').forEach(b=>b.onclick = e=>{ e.preventDefault(); const tp = b.closest('.nm').querySelector('.tip'), on = tp.hidden; tp.hidden = !on; b.setAttribute('aria-expanded', on); });
   const n = P.filter(r=>!NOPRICE[r.sku]).length;
   $('partsCount').textContent = n ? ` · ${cnt(n, 'פריט אחד', 'פריטים')}` : '';
   const bolts = P.find(r=>NOPRICE[r.sku]);
@@ -2300,7 +2318,7 @@ function loadDesign(){
 function modelsBanner(){
   if(!MODELS_CHECK) return;
   const list = ACC.filter(([s])=>NO_MODEL[s]).map(([s, nm])=>`<span><bdi dir="ltr">${s}</bdi> ${esc(nm)}</span>`).join(' · ');
-  document.querySelector('header.top').insertAdjacentHTML('afterend', `<div class="mcheck" id="mcheck" role="note"><b>בדיקת מודלים</b> · באדום: מצויר מצורות פשוטות, בלי מודל אמיתי בתיקייה "מתכנן Steel/מודלים".<div>אביזרי ריג (${Object.keys(NO_MODEL).length}): ${list}</div><div>מידוף: ${esc(NO_MODEL_DECOR)}.</div></div>`);
+  document.querySelector('header.top').insertAdjacentHTML('afterend', `<div class="mcheck" id="mcheck" role="note"><b>בדיקת מודלים</b> · באדום: מצויר מצורות פשוטות, בלי מודל אמיתי בתיקייה "מודל תכנון/מודלים".<div>אביזרי ריג (${Object.keys(NO_MODEL).length}): ${list}</div><div>מידוף: ${esc(NO_MODEL_DECOR)}.</div></div>`);
 }
 function uiInit(){
   modelsBanner();
@@ -2554,7 +2572,7 @@ async function cartFromHash(){
   ensureImages().then(()=>{ saveCart(); if(!$('cart').hidden) renderCart(); });
 }
 function cartText(url){
-  const T = cartTotals(), i = CART.info, out = ['בקשה להצעת מחיר · מתכנן Steel'];
+  const T = cartTotals(), i = CART.info, out = ['בקשה להצעת מחיר · מודל תכנון'];
   if(i.store) out.push([i.store, i.contact, i.phone ? LRI + i.phone + PDI : ''].filter(Boolean).join(' · '));   /* בידוד: "050 123 4567" לא מתהפך בוואטסאפ (סוקר) */
   CART.items.forEach((it, n)=>{ const d = designInfo(it.kind, it.st); out.push(`${n+1}. ${d.kind} · ${d.title}${it.qty > 1 ? ` × ${it.qty}` : ''}`); });
   out.push(`${T.quote ? 'סה״כ חלקי' : 'סה״כ'} לפני מע״מ: ${money(T.sum)}`);
@@ -2564,7 +2582,7 @@ function cartText(url){
 async function shareCart(){
   if(!CART.items.length) return;
   const url = await cartLink(), text = cartText();
-  if(navigator.share && COARSE){ try{ await navigator.share({title:'בקשה להצעת מחיר — מתכנן Steel', text, url}); return; }catch(e){ if(e && e.name==='AbortError') return; } }
+  if(navigator.share && COARSE){ try{ await navigator.share({title:'בקשה להצעת מחיר — מודל תכנון', text, url}); return; }catch(e){ if(e && e.name==='AbortError') return; } }
   const all = text + '\n' + url, fb = $('shareFallback');
   try{ await navigator.clipboard.writeText(all); fb.hidden = true; toast('הפירוט והקישור לסל הועתקו'); }
   catch(_){ fb.hidden = false; fb.value = all; fb.focus(); fb.select(); toast('מסמנים ומעתיקים את הקישור'); }
@@ -2620,7 +2638,7 @@ async function buildPrint(){
     <tr><td colspan="5" class="lab">מע״מ 18%</td><td class="n">${money(T.vat)}</td></tr>
     <tr class="big"><td colspan="5" class="lab">${T.quote ? 'סה״כ חלקי, כולל מע״מ' : 'סה״כ כולל מע״מ'}</td><td class="n">${money(T.sum + T.vat)}</td></tr></tfoot></table>
   ${T.quote ? `<div class="pd-warn">${esc(quoteNote(T))}</div>` : ''}
-  <div class="pd-link">${qr}<div><a href="${esc(url)}">סורקים או לוחצים לפתיחת הסל במתכנן</a><br>${ref}</div></div>
+  <div class="pd-link">${qr}<div><a href="${esc(url)}">סורקים או לוחצים לפתיחת הסל במודל התכנון</a><br>${ref}</div></div>
   <div class="pd-f">בקשה זו אינה הזמנה. הצעת המחיר תישלח מאיש המכירות.</div>`;
 }
 let printing = false, ownPrint = false;
@@ -2644,7 +2662,7 @@ window.addEventListener('beforeprint', ()=>{ if(!ownPrint) $('printdoc').innerHT
 /* ===== כניסה ללקוחות — תשתית לעתיד =====
    רומן: "תיצור כבר אפשרות עתידית להתחברות משתמש לפי לקוח קיים במסד במערכת שלנו".
    הצד הזה מוכן: חלון כניסה (טלפון/דוא״ל ⇒ קוד חד־פעמי), לקוח מחובר ממלא את פרטי החנות, והסל נשלח ישר לאיש המכירות שלו.
-   השרת (planner-auth, planner-quote) עוד לא קיים — ראו "מסמכי איפיון/מתכנן-Steel-כניסת-לקוחות.md". עד אז הכפתור מוסתר,
+   השרת (planner-auth, planner-quote) עוד לא קיים — ראו "מסמכי איפיון/מודל-תכנון-כניסת-לקוחות.md". עד אז הכפתור מוסתר,
    ונפתח רק במצב הדגמה (?login=demo) עם לקוח לדוגמה, בלי פנייה לשום שרת */
 const ACCOUNT_API = '';            /* כתובת פונקציות הקצה, כשיוקמו */
 const ACCOUNT = {mode:null, user:null, step:'id', id:''};
