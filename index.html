@@ -240,6 +240,12 @@ html.lock{overflow:hidden}
 .ac .t em{display:block;font-style:normal;font-size:12px;color:var(--warn-ink);margin-top:2px}
 .ac .step{height:34px}
 .ac .step button{width:30px}
+/* בדיקת מודלים (?models, 27/11/2026): מה שאין לו מודל אמיתי — באדום */
+.mcheck{padding:10px 14px;border:1px solid var(--danger);border-radius:var(--r);background:var(--surface);color:var(--danger);font-size:13px;line-height:1.6}
+.mcheck div{color:var(--ink)}
+.ac.nomodel{border-color:var(--danger);box-shadow:inset 0 0 0 1px var(--danger)}
+.nm-tag{display:inline-block;color:var(--danger);font-size:12px;font-weight:700;margin-inline-start:8px}
+.pl .nm-tag{display:block;margin:1px 0 0}
 /* ריג עצמאי: כמות לחזית ולצד האחורי, בשורה מתחת לשם (27/11/2026) */
 .ac.two{flex-wrap:wrap}
 .ac .sides{flex:1 0 100%;display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:6px 12px}
@@ -1099,13 +1105,25 @@ function popLeg(pos, idx){
    יחידות מעבר למקומות הפנויים מתומחרות ולא מצוירות. */
 const ACC_KIND = {'ST-YT0003D':'pair','ST-RJC':'pair','ST-SPA':'pair','ST-W6050':'pair','ST-W6153-S':'pair',
   'ST-R-DIP':'post','ST-LAN':'post','ST-WH':'post','ST-IBH':'post','ST-YP122E002':'post','ST-BAR-70M':'station','ST-ISC13':'bar'};
+/* ---------- בדיקת מודלים (רומן, 27/11/2026: "כל מה שאין לו מודל אמיתי בתיקיה תסמן בצבע אדום שאני אדע מה צריך להשלים") ----------
+   רק בכתובת עם ?models — חנות לא רואה אדום. מה שמצויר מצורות פשוטות (קופסאות וגלילים) ולא ממודל בתיקייה "מתכנן Steel/מודלים"
+   נצבע באדום בהדמיה, ומסומן בכרטיסי האביזרים ובפירוט. המבנה עצמו (רגליים, מדפים, קורות, מוטות) בנוי מה-CAD ואינו מסומן.
+   כשאביזר מקבל מודל אמיתי — מוחקים אותו מ-NO_MODEL. rigtest בודק שהרשימה תואמת למה שבאמת מצויר מצורות */
+const MODELS_CHECK = /[?&]models(=|&|$)/.test(location.search);
+const NO_MODEL = {'ST-RJC':1,'ST-W6050':1,'ST-W6153-S':1,'ST-R-DIP':1,'ST-LAN':1,'ST-WH':1,'ST-IBH':1,'ST-YP122E002':1,'ST-BAR-70M':1,'ST-ISC13':1};
+const NO_MODEL_DECOR = 'מגבות, גליל עיסוי ועציץ על המדפים הפינתיים';
+function phMat(){
+  if(!V3.phMat){ const m = new THREE.MeshStandardMaterial({color:0xe02424, roughness:0.6, metalness:0}); m.userData.rgb = [224, 36, 36]; m.color.convertSRGBToLinear(); V3.phMat = m; }
+  return V3.phMat;
+}
 function rigAccessories(PG, PX, free){
   const {steel, rubber} = V3, G = V3.accGeo || (V3.accGeo = {});
   const box = (w,h,d) => G['b'+w+'|'+h+'|'+d] || (G['b'+w+'|'+h+'|'+d] = new THREE.BoxGeometry(w,h,d));
   const cyl = (r,l) => G['c'+r+'|'+l] || (G['c'+r+'|'+l] = new THREE.CylinderGeometry(r,r,l,14));
   const tor = (R,r) => G['t'+R+'|'+r] || (G['t'+R+'|'+r] = new THREE.TorusGeometry(R,r,8,18));
   let CUR = null;     /* האביזר שמצויר עכשיו — מסומן על כל רשת שלו, כדי שאפשר יהיה לבדוק באיזה צד הוא */
-  const put = (geo, mat, p, x, y, z, rx, ry, rz) => { const m = new THREE.Mesh(geo, mat); m.position.set(x,y,z); m.rotation.set(rx||0, ry||0, rz||0); m.castShadow = m.receiveShadow = true; m.userData.acc = CUR; p.add(m); return m; };
+  /* צורה פשוטה = אין מודל אמיתי: מסומנת (ph), ובבדיקת מודלים צבועה באדום */
+  const put = (geo, mat, p, x, y, z, rx, ry, rz) => { const m = new THREE.Mesh(geo, MODELS_CHECK ? phMat() : mat); m.position.set(x,y,z); m.rotation.set(rx||0, ry||0, rz||0); m.castShadow = m.receiveShadow = true; m.userData.acc = CUR; m.userData.ph = true; p.add(m); return m; };
   const tag = o => { o.userData.acc = CUR; return o; };
   const RZ = Math.PI/2;
   /* חלקים כהים במודל ⇒ צבע האביזר (שחור), בהירים ⇒ פינים וברגים */
@@ -1176,7 +1194,7 @@ function fmat(hex, rough, metal){
 const FG = {};
 const fbox = (w,h,d) => FG['b'+w+h+d] || (FG['b'+w+h+d] = new THREE.BoxGeometry(w,h,d));
 const fcyl = (r,l,n) => FG['c'+r+'|'+l+'|'+(n||16)] || (FG['c'+r+'|'+l+'|'+(n||16)] = new THREE.CylinderGeometry(r,r,l,n||16));
-function fput(geo, mat, p, x, y, z, rx, ry, rz){ const m = new THREE.Mesh(geo, mat); m.position.set(x,y,z); m.rotation.set(rx||0, ry||0, rz||0); m.castShadow = m.receiveShadow = true; m.userData.fill = true; p.add(m); return m; }
+function fput(geo, mat, p, x, y, z, rx, ry, rz){ const m = new THREE.Mesh(geo, MODELS_CHECK ? phMat() : mat); m.userData.ph = true;   /* עיצוב הפינות — צורות פשוטות (בדיקת מודלים) */ m.position.set(x,y,z); m.rotation.set(rx||0, ry||0, rz||0); m.castShadow = m.receiveShadow = true; m.userData.fill = true; p.add(m); return m; }
 /* צבע מהמודל ⇒ חומר: אפור בהיר = כרום, שאר הצבעים מט.
    PAINT_WHITE הוא כיתוב צבוע (הלוגו והמשקל על קטלבל התחרות; models/export.py, "לבן צבע"). בכרום הוא נראה לבן מלפנים
    ושחור בזווית, כי מתכת מחזירה את הסביבה — ובקובץ המקור הוא צבע לבן לא מתכתי (27/11/2026) */
@@ -1783,10 +1801,10 @@ function renderRigUI(){
   box.querySelectorAll('[data-gw]').forEach(b=>b.onclick=()=>{ RIG.gaps[+b.dataset.j] = +b.dataset.gw; render(); });
   ACC.forEach(([sku, name])=>{
     const row = document.createElement('div'), q = RIG.acc[sku]||0, cap = accCap(sku), u = unitPrice(sku), two = twoSided(sku), f = accFront(sku), b = accBack(sku);
-    row.className = 'ac' + (q ? ' on' : '') + (two ? ' two' : '');
+    row.className = 'ac' + (q ? ' on' : '') + (two ? ' two' : '') + (MODELS_CHECK && NO_MODEL[sku] ? ' nomodel' : '');
     /* יחידות מעבר למקומות הפנויים מתומחרות ולא מצוירות — אומרים את זה (ממצא 6). בריג עצמאי — בכל צד בנפרד */
     const shown = Math.min(f, cap) + Math.min(b, cap);
-    row.innerHTML = `${D[sku] ? `<img alt="" src="${D[sku].img}">` : ''}<div class="t"><b>${esc(name)}</b><small>${u==null ? 'לפי הצעה' : fmtMoney(u)}</small>${V3.ok && shown < q ? `<em>בהדמיה: ${shown} מתוך ${q}. המחיר כולל את כולם</em>` : ''}</div>`;
+    row.innerHTML = `${D[sku] ? `<img alt="" src="${D[sku].img}">` : ''}<div class="t"><b>${esc(name)}</b><small>${u==null ? 'לפי הצעה' : fmtMoney(u)}</small>${MODELS_CHECK && NO_MODEL[sku] ? '<span class="nm-tag">אין מודל</span>' : ''}${V3.ok && shown < q ? `<em>בהדמיה: ${shown} מתוך ${q}. המחיר כולל את כולם</em>` : ''}</div>`;
     if(two){
       /* ריג עצמאי: כמות לחזית וכמות לצד האחורי. המחיר לפי הסך */
       const set = (fv, bv) => { RIG.acc[sku] = fv + bv; RIG.back = RIG.back || {}; if(bv) RIG.back[sku] = bv; else delete RIG.back[sku]; render(); };
@@ -1901,7 +1919,8 @@ function renderParts(){
     const hw = false, u = unitPrice(r.sku);
     const img = D[r.sku] ? `<img alt="" src="${D[r.sku].img}">` : '<span class="noimg"></span>';
     const right = hw ? `<b>${r.q} יח׳</b>` : u==null ? `<span class="quote">לפי הצעה</span><small>${r.q} יח׳</small>` : `<b>${fmtMoney(u*r.q)}</b><small>${r.q} × ${fmtMoney(u)}</small>`;
-    return `<li data-sku="${esc(r.sku)}">${img}<div class="nm"><b>${esc(r.name)}</b>${hw ? '' : `<span class="sku">${esc(r.sku)}</span>`}${r.note ? `<small class="pn">${esc(r.note)}</small>` : ''}</div><div class="pr">${right}</div></li>`;
+    const nm = MODELS_CHECK && NO_MODEL[r.sku];
+    return `<li data-sku="${esc(r.sku)}"${nm ? ' class="nomodel"' : ''}>${img}<div class="nm"><b>${esc(r.name)}</b>${hw ? '' : `<span class="sku">${esc(r.sku)}</span>`}${r.note ? `<small class="pn">${esc(r.note)}</small>` : ''}${nm ? '<small class="nm-tag">אין מודל</small>' : ''}</div><div class="pr">${right}</div></li>`;
   }).join('') || '<li class="hint">אין חלקים.</li>';
   const n = P.filter(r=>!NOPRICE[r.sku]).length;
   $('partsCount').textContent = n ? ` · ${cnt(n, 'פריט אחד', 'פריטים')}` : '';
@@ -2134,7 +2153,14 @@ function loadDesign(){
 }
 
 /* ---------- חיבור הכפתורים ---------- */
+/* בדיקת מודלים (?models): פס מתחת לכותרת עם כל מה שאין לו עדיין מודל אמיתי — גם מה שלא נמצא בתכנון שעל המסך */
+function modelsBanner(){
+  if(!MODELS_CHECK) return;
+  const list = ACC.filter(([s])=>NO_MODEL[s]).map(([s, nm])=>`<span><bdi dir="ltr">${s}</bdi> ${esc(nm)}</span>`).join(' · ');
+  document.querySelector('header.top').insertAdjacentHTML('afterend', `<div class="mcheck" id="mcheck" role="note"><b>בדיקת מודלים</b> · באדום: מצויר מצורות פשוטות, בלי מודל אמיתי בתיקייה "מתכנן Steel/מודלים".<div>אביזרי ריג (${Object.keys(NO_MODEL).length}): ${list}</div><div>מידוף: ${esc(NO_MODEL_DECOR)}.</div></div>`);
+}
 function uiInit(){
+  modelsBanner();
   document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{ if(TAB===b.dataset.tab) return; TAB = b.dataset.tab; hideNote(); closeMenu(); render(); });
   $('presetsBtn').onclick = ()=>openMenu($('presetsBtn'), $('m-presets'));
   $('cornerBtn').onclick = ()=>openMenu($('cornerBtn'), $('m-corner'));
