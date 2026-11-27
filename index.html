@@ -278,6 +278,7 @@ html.lock{overflow:hidden}
 .pl .noimg{background:var(--surface-3);border-color:transparent}
 .pl .nm{min-width:0}
 .pl .nm b{display:block;font-weight:600;font-size:13.5px;line-height:1.3}
+.pl .pn{display:block;color:var(--muted);font-size:12px;line-height:1.35;margin-top:1px}
 .sku{font-family:var(--f-mono);font-size:11.5px;color:var(--muted);direction:ltr;display:inline-block;unicode-bidi:isolate}
 .pl .pr{text-align:left;font-variant-numeric:tabular-nums;white-space:nowrap;line-height:1.3}
 .pl .pr b{display:block;font-size:13.5px;font-weight:700}
@@ -311,7 +312,6 @@ details.card > summary::-webkit-details-marker{display:none}
 
 /* כותרת תחתונה */
 .foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 20px;padding:12px 4px 0;color:var(--muted);font-size:12.5px}
-.foot .logo{height:16px;width:auto;color:var(--ink);opacity:.8}
 .foot a{color:inherit}
 
 /* ---------- הסל ---------- */
@@ -601,10 +601,10 @@ textarea.copy{width:100%;min-height:90px;font:12.5px/1.45 var(--f-body);border:1
     </aside>
   </div>
 
+  <!-- בלי לוגו ובלי שורת המחירון (רומן, 27/11/2026): הלוגו כבר בכותרת; "לפני מע״מ" כתוב מתחת למחיר, ושם המחירון ותאריכו
+       מופיעים בראש הבקשה המודפסת — שם הם נחוצים, לאיש המכירות -->
   <footer class="foot">
-    <svg class="logo" viewBox="0 0 852.7 227.3" fill="currentColor" role="img" aria-label="IRON FITNESS"><path d="M24.3,202.5v-6.8H0v30.9h8.7V216h13.7v-6.8H8.8v-6.8h15.5V202.5z"/><rect x="138.8" y="195.8" width="8.7" height="30.9"/><path d="M270.9,226.7h8.7v-24h9.5v-6.9h-27.7v6.9h9.5V226.7z"/><path d="M423.7,195.8v16.5L410,195.8h-7.2v30.9h8.6v-16.5l13.7,16.5h7.2v-30.9H423.7z"/><path d="M557.6,219.9v-5.7h13.7v-6.5h-13.7v-5.2h15.6v-6.8h-24.3v30.9h24.8v-6.8h-16.1V219.9z"/><path d="M700,227.3c9.2,0,13.7-4.6,13.7-10c0-11.4-17.5-7.9-17.5-12.6c0-1.5,1.3-2.8,5-2.8c2.7,0,5.6,0.8,8.6,2.4 l2.7-6.5c-3.1-1.8-7.2-2.7-11.2-2.7c-9.2,0-13.7,4.5-13.7,10c0,11.5,17.6,7.9,17.6,12.8c0,1.5-1.4,2.5-5,2.5s-7.5-1.2-10.2-3 l-2.9,6.5C689.9,225.9,694.9,227.3,700,227.3z"/><path d="M839,227.3c9.2,0,13.7-4.6,13.7-10c0-11.4-17.5-7.9-17.5-12.6c0-1.5,1.3-2.8,5-2.8c2.7,0,5.6,0.8,8.6,2.4 l2.7-6.5c-3-1.8-7.2-2.7-11.2-2.7c-9.2,0-13.7,4.5-13.7,10c0,11.5,17.6,7.9,17.6,12.8c0,1.5-1.4,2.5-5,2.5s-7.5-1.2-10.2-3l-2.9,6.5 C828.9,225.9,834,227.3,839,227.3z"/><path fill-rule="evenodd" d="M62.1,3.7c0-2.1-1.7-3.7-3.7-3.7H3.7C1.7,0,0,1.7,0,3.7v164.4c0,2.1,1.7,3.7,3.7,3.7h54.7 c2.1,0,3.7-1.7,3.7-3.7C62.1,168.1,62.1,3.7,62.1,3.7z"/><path fill-rule="evenodd" d="M683.1,82.8c24.9,18.4,119.4,88.3,119.4,88.3c0.6,0.5,1.4,0.7,2.2,0.7H849c2.1,0,3.7-1.7,3.7-3.7V3.7 c0-2.1-1.7-3.7-3.7-3.7h-54.7c-2.1,0-3.7,1.7-3.7,3.7v85.7l-120-88.7C670,0.2,669.2,0,668.4,0h-43.7c-2.1,0-3.7,1.7-3.7,3.7v164.4 c0,2.1,1.7,3.7,3.7,3.7h54.7c2.1,0,3.7-1.7,3.7-3.7L683.1,82.8L683.1,82.8z"/><path fill-rule="evenodd" d="M118,0H90.7c-2,0-3.7,1.7-3.7,3.8v164.3c0,2.1,1.7,3.7,3.7,3.7h54.7c2.1,0,3.7-1.7,3.7-3.7V118h54.2l54.1,52.8 c0.7,0.7,1.6,1.1,2.6,1.1h70.5c1.5,0,2.9-0.9,3.4-2.3c0.6-1.4,0.2-3-0.8-4.1L284.5,118h2c18.1,0,32.8-14.7,32.8-32.8V32.7 c0-18.1-14.7-32.7-32.8-32.7H119.8C119.2,0,118.6,0,118,0L118,0z M258.5,52.2v13.7H149.2V52.2H258.5z"/><path fill-rule="evenodd" d="M463,0v50.9h-58V121h58v50.9h-86c-18.1,0-32.8-14.7-32.8-32.8V32.7c0-18,14.7-32.7,32.8-32.7H463z M476.5,0 h87.3c18.1,0,32.8,14.7,32.8,32.7V139c0,18.1-14.7,32.8-32.8,32.8h-87.3V121h59.3V50.9h-59.3V0z"/></svg>
     <span>איירון פיטנס · <a href="https://www.ironfitness.co.il" target="_blank" rel="noopener">ironfitness.co.il</a></span>
-    <span id="plnote"></span>
   </footer>
 </div>
 
@@ -748,6 +748,10 @@ let TAB = 'shelf';
 /* ריג Steel: קיר (קורות בשורה אחת, מחוברות לקיר) או עצמאי (שתי שורות).
    תחנת עבודה = מתח של 109 ס״מ בין שתי קורות. בין תחנה לתחנה מתח של 150 או 180 ס״מ (רומן, 16/11/2026) */
 let RIG = {type:'wall', n:1, gaps:[], color:'9005', acc:{}};
+/* גובה מוטות המתח — הערה ברשימת החלקים ובתיאור שבהדפסה (רומן, 27/11/2026): בתוך התחנה המתח בגובה סטנדרטי,
+   ובין התחנות אפשר לקבוע גובה אחר. בהדמיה כל המוטות בגובה כ-230 (הברגים ב-225.8 וב-235.8).
+   H_KIT — על שורת הערכה, רק כשאין שורת 109 נפרדת (תחנה אחת): אז המתח שבתחנה נמצא בתוך הערכה */
+const H_ST = 'גובה סטנדרטי כ-230 ס״מ', H_SPAN = 'גובה כ-230 ס״מ, ניתן לשינוי', H_KIT = 'מתח בגובה סטנדרטי כ-230 ס״מ';
 const RIG_PITCH = 115.2, RIG_DEPTH = 156;      /* מרכז קורה למרכז קורה: 109.2+6 לרוחב, 150+6 לעומק */
 const GAP_W = [150, 180];
 const RIG_MAX = 10;   /* עד 10 תחנות (רומן, 16/11/2026) */
@@ -764,17 +768,18 @@ const ACC = [['ST-YT0003D','זוג J-Cup סנדוויץ׳'],['ST-RJC','זוג J-
 /* תמחור: ערכה לתחנה הראשונה, וכל תחנה נוספת לפי הקורות והמוטות שנוספים (רומן, 15/11/2026) */
 function rigParts(){
   rigNorm();
-  const m = [], add = (sku, name, q) => { if(q>0){ const r = m.find(x=>x.sku===sku); if(r) r.q += q; else m.push({sku, name, q}); } }, ext = RIG.n - 1, col = ' · קורות ' + colLabel(RIG.color);
+  const m = [], add = (sku, name, q, note) => { if(q>0){ const r = m.find(x=>x.sku===sku); if(r){ r.q += q; if(note && !r.note) r.note = note; } else m.push(note ? {sku, name, q, note} : {sku, name, q}); } }, ext = RIG.n - 1, col = ' · קורות ' + colLabel(RIG.color);
   const n150 = RIG.gaps.filter(g=>g===150).length, n180 = RIG.gaps.filter(g=>g===180).length, rows = RIG.type==='wall' ? 1 : 2;
   /* כל תחנה נוספת: שתי קורות לכל שורה ומתח 109 בכל שורה; בריג קיר גם זרוע לקיר לכל קורה, בעצמאי מוט עומק 150 לכל זוג קורות */
   if(RIG.type==='wall'){
-    add('ST-WMR-1S', 'ריג קיר Steel, תחנה אחת' + col, 1);
-    add('ST-UP265', 'קורת ריג 265 ס״מ · ' + colLabel(RIG.color), 2*ext);   /* עם הצבע: שני ריגים בצבעים שונים לא מתמזגים לשורה אחת בריכוז (27/11/2026) */ add('ST-SBAR109', 'מוט מתח 109 ס״מ', 3*ext);
+    add('ST-WMR-1S', 'ריג קיר Steel, תחנה אחת' + col, 1, ext ? '' : H_KIT);
+    add('ST-UP265', 'קורת ריג 265 ס״מ · ' + colLabel(RIG.color), 2*ext);   /* עם הצבע: שני ריגים בצבעים שונים לא מתמזגים לשורה אחת בריכוז (27/11/2026) */ add('ST-SBAR109', 'מוט מתח 109 ס״מ', 3*ext, H_ST);
   } else {
-    add('ST-FSR-1S', 'ריג עצמאי Steel, תחנה אחת' + col, 1);
-    add('ST-UP265', 'קורת ריג 265 ס״מ · ' + colLabel(RIG.color), 4*ext); add('ST-SBAR109', 'מוט מתח 109 ס״מ', 2*ext); add('ST-SBAR150', 'מוט מתח 150 ס״מ', 2*ext);
+    add('ST-FSR-1S', 'ריג עצמאי Steel, תחנה אחת' + col, 1, ext ? '' : H_KIT);
+    /* מוטות העומק (150) בראש הריג — בלי הערת גובה; כשגם המתח שבין התחנות 150, ההערה שלו נכנסת לאותה שורה */
+    add('ST-UP265', 'קורת ריג 265 ס״מ · ' + colLabel(RIG.color), 4*ext); add('ST-SBAR109', 'מוט מתח 109 ס״מ', 2*ext, H_ST); add('ST-SBAR150', 'מוט מתח 150 ס״מ', 2*ext);
   }
-  add('ST-SBAR150', 'מוט מתח 150 ס״מ', rows*n150); add('ST-SBAR180', 'מוט מתח 180 ס״מ', rows*n180);
+  add('ST-SBAR150', 'מוט מתח 150 ס״מ', rows*n150, H_SPAN); add('ST-SBAR180', 'מוט מתח 180 ס״מ', rows*n180, H_SPAN);
   ACC.forEach(([sku, name])=>add(sku, name, RIG.acc[sku]||0));
   add('M12x95', 'סט בורג M12×95 עם דסקיות ואום', (RIG.type==='wall' ? 4 : 8) * 2*RIG.n);
   return m;
@@ -1861,7 +1866,7 @@ function renderParts(){
     const hw = false, u = unitPrice(r.sku);
     const img = D[r.sku] ? `<img alt="" src="${D[r.sku].img}">` : '<span class="noimg"></span>';
     const right = hw ? `<b>${r.q} יח׳</b>` : u==null ? `<span class="quote">לפי הצעה</span><small>${r.q} יח׳</small>` : `<b>${fmtMoney(u*r.q)}</b><small>${r.q} × ${fmtMoney(u)}</small>`;
-    return `<li data-sku="${esc(r.sku)}">${img}<div class="nm"><b>${esc(r.name)}</b>${hw ? '' : `<span class="sku">${esc(r.sku)}</span>`}</div><div class="pr">${right}</div></li>`;
+    return `<li data-sku="${esc(r.sku)}">${img}<div class="nm"><b>${esc(r.name)}</b>${hw ? '' : `<span class="sku">${esc(r.sku)}</span>`}${r.note ? `<small class="pn">${esc(r.note)}</small>` : ''}</div><div class="pr">${right}</div></li>`;
   }).join('') || '<li class="hint">אין חלקים.</li>';
   const n = P.filter(r=>!NOPRICE[r.sku]).length;
   $('partsCount').textContent = n ? ` · ${cnt(n, 'פריט אחד', 'פריטים')}` : '';
@@ -2005,7 +2010,8 @@ function designLines(kind, st){
   return withDesign(kind, st, ()=>{
     if(kind==='rig'){
       const out = [`${RIG.type==='wall' ? 'ריג קיר (מחובר לקיר, שורה אחת)' : 'ריג עצמאי (שתי שורות)'} · ${cnt(RIG.n, 'תחנה אחת', 'תחנות')}`];
-      if(RIG.gaps.length) out.push('בין התחנות: ' + RIG.gaps.map((g, j)=>`מתח ${j+1} = ${g} ס״מ`).join(' · '));
+      out.push('מתח בתוך התחנה: ' + H_ST);
+      if(RIG.gaps.length) out.push('בין התחנות: ' + RIG.gaps.map((g, j)=>`מתח ${j+1} = ${g} ס״מ`).join(' · ') + ' · ' + H_SPAN);
       out.push(`קורות: ${colLabel(RIG.color)} · מוטות מתח: שחור מגורען (RAL 9005)`);
       const acc = ACC.filter(([s])=>RIG.acc[s]).map(([s, nm])=>`${nm} ×${RIG.acc[s]}`);
       if(acc.length) out.push('אביזרים: ' + acc.join(' · '));
@@ -2043,7 +2049,6 @@ function renderSummary(t){
   /* בלי מדפים הכפתור מושבת — הסיבה כתובה כאן ולא רק ב-title (סוקר, 27/11/2026) */
   const warn = empty ? 'אין מדפים בתכנון. מוסיפים מדף בלחיצה על ＋ בהדמיה.' : store ? (t.quote ? quoteNote(t) : '') : (t.cmiss ? `${cnt(t.cmiss, 'פריט אחד', 'פריטים')} בלי מחיר באתר` : '');
   $('gap').hidden = !warn; $('gap').textContent = warn;
-  $('plnote').textContent = store ? `מחירון ${PL} מ-${PL_DATE} · המחירים לחנות לפני מע״מ` : 'מחירי האתר, כולל מע״מ';
   $('mbPrice').textContent = big; $('mbSub').textContent = store ? (t.quote ? 'לפני מע״מ · חלקי' : 'לפני מע״מ') : 'באתר, כולל מע״מ';
   $('fsPrice').textContent = big; $('fsSub').textContent = $('mbSub').textContent;
   const editing = !!(EDIT && EDIT.kind===TAB && CART.items.some(x=>x.id===EDIT.id));
