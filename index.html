@@ -240,6 +240,12 @@ html.lock{overflow:hidden}
 .ac .t em{display:block;font-style:normal;font-size:12px;color:var(--warn-ink);margin-top:2px}
 .ac .step{height:34px}
 .ac .step button{width:30px}
+/* ריג עצמאי: כמות לחזית ולצד האחורי, בשורה מתחת לשם (27/11/2026) */
+.ac.two{flex-wrap:wrap}
+.ac .sides{flex:1 0 100%;display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:6px 12px}
+.ac .side{display:inline-flex;align-items:center;gap:6px}
+.ac .side > span{font-size:12.5px;color:var(--muted)}
+@media (pointer:fine){ .ac.two .step button{width:26px} }
 
 /* ---------- תקציר ומחיר ---------- */
 .sum{padding:18px 18px 6px}
@@ -407,6 +413,9 @@ textarea.copy{width:100%;min-height:90px;font:12.5px/1.45 var(--f-body);border:1
   .dd,.btn{min-height:40px}
   .step{height:42px}   /* 40 לכפתור עצמו: המסגרת (1px מכל צד) נגזרת מהגובה, ו-min-height:40 השאיר כפתורים של 38 (נמדד, 27/11/2026) */
   .step button{width:40px}
+  /* בכרטיסי האביזרים ובסל הכללים הקומפקטיים (.ac .step / .ci .bot .step) ספציפיים יותר וגברו על אלה — גם כאן 40 */
+  .ac .step,.ci .bot .step{height:42px}
+  .ac .step button,.ci .bot .step button{width:40px}
   .vseg button,.vbtn{height:40px}
   .vbtn.icon{width:42px}
   .plus{height:40px;min-width:40px;border-radius:20px}
@@ -747,7 +756,7 @@ const PL = 'ריטייל';
 let TAB = 'shelf';
 /* ריג Steel: קיר (קורות בשורה אחת, מחוברות לקיר) או עצמאי (שתי שורות).
    תחנת עבודה = מתח של 109 ס״מ בין שתי קורות. בין תחנה לתחנה מתח של 150 או 180 ס״מ (רומן, 16/11/2026) */
-let RIG = {type:'wall', n:1, gaps:[], color:'9005', acc:{}};
+let RIG = {type:'wall', n:1, gaps:[], color:'9005', acc:{}, back:{}};
 /* גובה מוטות המתח — הערה ברשימת החלקים ובתיאור שבהדפסה (רומן, 27/11/2026): בתוך התחנה המתח בגובה סטנדרטי,
    ובין התחנות אפשר לקבוע גובה אחר. בהדמיה כל המוטות בגובה כ-230 (הברגים ב-225.8 וב-235.8).
    H_KIT — על שורת הערכה, רק כשאין שורת 109 נפרדת (תחנה אחת): אז המתח שבתחנה נמצא בתוך הערכה */
@@ -756,7 +765,15 @@ const RIG_PITCH = 115.2, RIG_DEPTH = 156;      /* מרכז קורה למרכז �
 const GAP_W = [150, 180];
 const RIG_MAX = 10;   /* עד 10 תחנות (רומן, 16/11/2026) */
 /* כמה יחידות מאביזר נכנסות בהדמיה: זוג/מתח קופים — אחד לתחנה; אביזר קורה — אחד לקורה; שאקל — אחד למוט */
-function accCap(sku){ const rows = RIG.type==='free' ? 2 : 1, k = ACC_KIND[sku]; return k==='post' ? rows*2*RIG.n : k==='bar' ? rows*(2*RIG.n-1) : rows*RIG.n; }
+/* ריג עצמאי יכול לעמוד במרכז החלל, ולכל תחנה בו שני צדדים: אביזרים בחזית כמו קודם, וגם בצד האחורי (רומן, 27/11/2026).
+   RIG.acc = הכמות הכוללת של כל אביזר — ממנה המחיר, כמו קודם; RIG.back = כמה מתוכה בצד האחורי. בריג קיר אין צד אחורי.
+   רצועות הבטיחות נמתחות מהקורה הקדמית לאחורית — זוג אחד משרת את שני הצדדים, ולכן להן כמות אחת */
+const THROUGH = {'ST-W6050':1};
+const twoSided = sku => RIG.type==='free' && !THROUGH[sku];
+const accBack = sku => twoSided(sku) ? Math.max(0, Math.min((RIG.back && RIG.back[sku])|0, RIG.acc[sku]||0)) : 0;
+const accFront = sku => (RIG.acc[sku]||0) - accBack(sku);
+/* כמה יחידות נכנסות בהדמיה בצד אחד: זוג/מתח קופים — אחת לתחנה; אביזר קורה — אחת לקורה; שאקל — אחת למוט */
+function accCap(sku){ const k = ACC_KIND[sku]; return k==='post' ? 2*RIG.n : k==='bar' ? 2*RIG.n-1 : RIG.n; }
 function rigNorm(){ RIG.gaps.length = RIG.n - 1; for(let j=0;j<RIG.gaps.length;j++) if(!GAP_W.includes(RIG.gaps[j])) RIG.gaps[j] = 150; }
 /* מיקום הקורות לאורך הריג: לכל תחנה שתי קורות, ומרווח 150/180 ביניהן */
 function rigPosts(){ rigNorm(); const xs = []; let x = 0;
@@ -1087,18 +1104,20 @@ function rigAccessories(PG, PX, free){
   const box = (w,h,d) => G['b'+w+'|'+h+'|'+d] || (G['b'+w+'|'+h+'|'+d] = new THREE.BoxGeometry(w,h,d));
   const cyl = (r,l) => G['c'+r+'|'+l] || (G['c'+r+'|'+l] = new THREE.CylinderGeometry(r,r,l,14));
   const tor = (R,r) => G['t'+R+'|'+r] || (G['t'+R+'|'+r] = new THREE.TorusGeometry(R,r,8,18));
-  const put = (geo, mat, p, x, y, z, rx, ry, rz) => { const m = new THREE.Mesh(geo, mat); m.position.set(x,y,z); m.rotation.set(rx||0, ry||0, rz||0); m.castShadow = m.receiveShadow = true; p.add(m); return m; };
+  let CUR = null;     /* האביזר שמצויר עכשיו — מסומן על כל רשת שלו, כדי שאפשר יהיה לבדוק באיזה צד הוא */
+  const put = (geo, mat, p, x, y, z, rx, ry, rz) => { const m = new THREE.Mesh(geo, mat); m.position.set(x,y,z); m.rotation.set(rx||0, ry||0, rz||0); m.castShadow = m.receiveShadow = true; m.userData.acc = CUR; p.add(m); return m; };
+  const tag = o => { o.userData.acc = CUR; return o; };
   const RZ = Math.PI/2;
   /* חלקים כהים במודל ⇒ צבע האביזר (שחור), בהירים ⇒ פינים וברגים */
   const accMat = c => parseInt(c.slice(1,3), 16) < 90 ? steel : V3.boltMat;
   /* כל ציור מקבל קבוצה של קורה אחת: 0 = מרכז הצינור על הרצפה, חזית הצינור ב-z=3 */
   const DRAW = {
     /* J-Cup סנדוויץ׳ — המודל שלנו: בקובץ זוג, שמאלי וימני; הלוח על חזית הקורה והפינים בחורים */
-    'ST-YT0003D': (g, sd)=>mdlPut(sd ? 'jcupR' : 'jcupL', g, accMat, 0, 134, 0),
+    'ST-YT0003D': (g, sd)=>tag(mdlPut(sd ? 'jcupR' : 'jcupL', g, accMat, 0, 134, 0)),
     'ST-RJC': g=>{ const y = 124;         /* J-Cup רגיל: לוח על חזית הצינור ושקע */
       put(box(6.4,17,0.8), steel, g, 0, y+7, 3.4); put(box(6.4,0.9,10), steel, g, 0, y, 8.6); put(box(6.4,5.5,0.9), steel, g, 0, y+2.4, 13.2); put(box(5.4,0.6,8.6), rubber, g, 0, y+0.75, 8.5); },
     /* זרוע בטיחות — המודל שלנו (שמאל/ימין): מרכז הצינור בגובה 84 */
-    'ST-SPA': (g, sd)=>mdlPut(sd ? 'spaR' : 'spaL', g, accMat, 0, 84, 0),
+    'ST-SPA': (g, sd)=>tag(mdlPut(sd ? 'spaR' : 'spaL', g, accMat, 0, 84, 0)),
     'ST-W6050': g=>{ const y = 98;        /* רצועת בטיחות: בריג עצמאי נמתחת מהקורה הקדמית לאחורית; בריג קיר — לפנים */
       if(free){ [-4.5, -RIG_DEPTH + 4.5].forEach(z=>put(box(7.2,8,3), steel, g, 0, y, z)); put(box(5,0.5,RIG_DEPTH - 12), rubber, g, 0, y - 1, -RIG_DEPTH/2); }
       else { put(box(7.2,8,3), steel, g, 0, y, 4.5); put(box(5,0.5,64), rubber, g, 0, y, 38); put(box(7.2,8,3), steel, g, 0, y, 71); } },
@@ -1124,20 +1143,26 @@ function rigAccessories(PG, PX, free){
     'ST-ISC13': (g, L)=>{                   /* שאקל: לוחית תלויה מהמוט וחוליה מתכתית */
       put(box(1,6,6.5), steel, g, 3 + L/2, 220.5, 0); put(tor(2.4,0.5), V3.boltMat, g, 3 + L/2, 214.6, 0, 0, RZ); }
   };
-  const rows = free ? [0, 1] : [0], n = PX.length/2;
-  /* המקומות לכל סוג: תחנות, קורות או מוטות; קודם השורה הקדמית */
-  const stations = [], posts = [], bars = [];
-  rows.forEach(r=>{ for(let j=0;j<n;j++){ stations.push([r, j]); posts.push([r, 2*j], [r, 2*j+1]); bars.push([r, j, 'st']); if(j < n-1) bars.push([r, j, 'gap']); } });
+  const n = PX.length/2;
+  /* המקומות בשורה r לכל סוג: תחנות, קורות או מוטות. r=1 — הצד האחורי של ריג עצמאי */
+  const spots = r => { const st = [], po = [], ba = []; for(let j=0;j<n;j++){ st.push([r, j]); po.push([r, 2*j], [r, 2*j+1]); ba.push([r, j, 'st']); if(j < n-1) ba.push([r, j, 'gap']); } return {st, po, ba}; };
+  const sides = free ? [spots(0), spots(1)] : [spots(0)];
   /* מוט במקום r: בשורה האחורית הקבוצה מסובבת, ולכן המוט נמדד מהקורה הימנית */
   const barHost = (r, k) => PG[r][r ? k + 1 : k];
   for(const [sku] of ACC){
-    const q = RIG.acc[sku] || 0, kind = ACC_KIND[sku], draw = DRAW[sku]; if(!q || !draw) continue;
-    /* sd: 0 = הקורה השמאלית כשעומדים מול התחנה. בשורה האחורית עומדים מהצד השני */
-    if(kind==='pair') stations.slice(0, q).forEach(([r, j])=>{ draw(PG[r][2*j], r ? 1 : 0); draw(PG[r][2*j+1], r ? 0 : 1); });
-    else if(kind==='post') posts.slice(0, q).forEach(([r, k])=>draw(PG[r][k]));
-    else if(kind==='station') stations.slice(0, q).forEach(([r, j])=>draw(barHost(r, 2*j), 109.2));
-    else bars.slice(0, q).forEach(([r, j, t])=>t==='st' ? draw(barHost(r, 2*j), 109.2) : draw(barHost(r, 2*j+1), RIG.gaps[j]));
+    const kind = ACC_KIND[sku], draw = DRAW[sku]; if(!draw || !RIG.acc[sku]) continue;
+    CUR = sku;
+    /* בכל צד הכמות שלו: בחזית accFront, מאחור accBack (בריג קיר ולרצועות הכול בחזית). עד 27/11/2026 הצד האחורי קיבל
+       רק את מה שלא נכנס בחזית, ולכן אי אפשר היה לשים אביזר מאחור בלי למלא קודם את כל החזית */
+    [accFront(sku), accBack(sku)].forEach((q, side)=>{ const L = sides[side]; if(!q || !L) return;
+      /* sd: 0 = הקורה השמאלית כשעומדים מול התחנה. בשורה האחורית עומדים מהצד השני */
+      if(kind==='pair') L.st.slice(0, q).forEach(([r, j])=>{ draw(PG[r][2*j], r ? 1 : 0); draw(PG[r][2*j+1], r ? 0 : 1); });
+      else if(kind==='post') L.po.slice(0, q).forEach(([r, k])=>draw(PG[r][k]));
+      else if(kind==='station') L.st.slice(0, q).forEach(([r, j])=>draw(barHost(r, 2*j), 109.2));
+      else L.ba.slice(0, q).forEach(([r, j, t])=>t==='st' ? draw(barHost(r, 2*j), 109.2) : draw(barHost(r, 2*j+1), RIG.gaps[j]));
+    });
   }
+  CUR = null;
 }
 /* ---------- תכולה למראית עין על המדפים (רומן, 16/11/2026: "כמו בתמונה") ----------
    לא חלק מההזמנה ולא נכנס לרשימת החלקים. מדף קטלבלים ⇒ קטלבלים; משקולות יד ⇒ משקולות משושה בשורה, ניצבות למדף;
@@ -1757,10 +1782,20 @@ function renderRigUI(){
   box.innerHTML = gaps + '<h3>אביזרים</h3><div class="acc" id="acc"></div>';
   box.querySelectorAll('[data-gw]').forEach(b=>b.onclick=()=>{ RIG.gaps[+b.dataset.j] = +b.dataset.gw; render(); });
   ACC.forEach(([sku, name])=>{
-    const row = document.createElement('div'), q = RIG.acc[sku]||0, cap = accCap(sku), u = unitPrice(sku); row.className = 'ac' + (q ? ' on' : '');
-    /* יחידות מעבר למקומות הפנויים מתומחרות ולא מצוירות — אומרים את זה (ממצא 6) */
-    row.innerHTML = `${D[sku] ? `<img alt="" src="${D[sku].img}">` : ''}<div class="t"><b>${esc(name)}</b><small>${u==null ? 'לפי הצעה' : fmtMoney(u)}</small>${V3.ok && q > cap ? `<em>בהדמיה: ${cap} מתוך ${q}. המחיר כולל את כולם</em>` : ''}</div>`;
-    row.append(stepper(q, 0, 24, v=>{ RIG.acc[sku] = v; render(); }, name));
+    const row = document.createElement('div'), q = RIG.acc[sku]||0, cap = accCap(sku), u = unitPrice(sku), two = twoSided(sku), f = accFront(sku), b = accBack(sku);
+    row.className = 'ac' + (q ? ' on' : '') + (two ? ' two' : '');
+    /* יחידות מעבר למקומות הפנויים מתומחרות ולא מצוירות — אומרים את זה (ממצא 6). בריג עצמאי — בכל צד בנפרד */
+    const shown = Math.min(f, cap) + Math.min(b, cap);
+    row.innerHTML = `${D[sku] ? `<img alt="" src="${D[sku].img}">` : ''}<div class="t"><b>${esc(name)}</b><small>${u==null ? 'לפי הצעה' : fmtMoney(u)}</small>${V3.ok && shown < q ? `<em>בהדמיה: ${shown} מתוך ${q}. המחיר כולל את כולם</em>` : ''}</div>`;
+    if(two){
+      /* ריג עצמאי: כמות לחזית וכמות לצד האחורי. המחיר לפי הסך */
+      const set = (fv, bv) => { RIG.acc[sku] = fv + bv; RIG.back = RIG.back || {}; if(bv) RIG.back[sku] = bv; else delete RIG.back[sku]; render(); };
+      const sd = document.createElement('div'); sd.className = 'sides';
+      [['חזית', f, 24 - b, v=>set(v, b), ' בחזית'], ['אחור', b, 24 - f, v=>set(f, v), ' מאחור']].forEach(([lbl, val, mx, fn, aria])=>{
+        const g = document.createElement('span'); g.className = 'side'; const l = document.createElement('span'); l.textContent = lbl;
+        g.append(l, stepper(val, 0, mx, fn, name + aria)); sd.append(g); });
+      row.append(sd);
+    } else row.append(stepper(q, 0, 24, v=>{ RIG.acc[sku] = v; if(RIG.back) delete RIG.back[sku]; render(); }, name));   /* בלי צד אחורי: שינוי הכמות מאפס את החלוקה */
     $('acc').append(row);
   });
 }
@@ -2013,7 +2048,9 @@ function designLines(kind, st){
       out.push('מתח בתוך התחנה: ' + H_ST);
       if(RIG.gaps.length) out.push('בין התחנות: ' + RIG.gaps.map((g, j)=>`מתח ${j+1} = ${g} ס״מ`).join(' · ') + ' · ' + H_SPAN);
       out.push(`קורות: ${colLabel(RIG.color)} · מוטות מתח: שחור מגורען (RAL 9005)`);
-      const acc = ACC.filter(([s])=>RIG.acc[s]).map(([s, nm])=>`${nm} ×${RIG.acc[s]}`);
+      /* ריג עצמאי עם אביזרים מאחור: כמה בכל צד, כדי שאיש המכירות יידע איפה להרכיב */
+      const acc = ACC.filter(([s])=>RIG.acc[s]).map(([s, nm])=>{ const q = RIG.acc[s], b = accBack(s);
+        return `${nm} ×${q}` + (!b ? '' : b===q ? ' (מאחור)' : ` (${q - b} בחזית, ${b} מאחור)`); });
       if(acc.length) out.push('אביזרים: ' + acc.join(' · '));
       return out;
     }
@@ -2081,8 +2118,12 @@ function cleanRig(o){
   const n = Math.max(1, Math.min(RIG_MAX, o.n|0)), acc = {};
   for(const [sku] of ACC){ const q = o.acc && o.acc[sku]; if(q) acc[sku] = Math.max(0, Math.min(24, q|0)); }
   const gaps = Array.isArray(o.gaps) ? o.gaps.slice(0, n-1).map(g=>GAP_W.includes(g) ? g : 150) : [];
-  const r = {type:o.type, n, gaps, color: COLORS.some(c=>c[0]===o.color) ? o.color : '9005', acc};
-  return withDesign('rig', r, ()=>{ rigNorm(); return RIG; });
+  const r = {type:o.type, n, gaps, color: COLORS.some(c=>c[0]===o.color) ? o.color : '9005', acc, back:{}};
+  return withDesign('rig', r, ()=>{ rigNorm();
+    /* הצד האחורי בריג עצמאי (27/11/2026). תכנון שנשמר לפני כן (בלי back): מה שלא נכנס בחזית צויר מאחור — וכך הוא נשאר */
+    if(RIG.type==='free') for(const [sku] of ACC){ const q = acc[sku]; if(!q || !twoSided(sku)) continue;
+      const b = o.back && typeof o.back==='object' ? (o.back[sku]|0) : q - accCap(sku), v = Math.max(0, Math.min(q, b)); if(v) RIG.back[sku] = v; }
+    return RIG; });
 }
 function loadDesign(){
   const d = LS.get(DESIGN_KEY); if(!d || d.v!==1) return;
