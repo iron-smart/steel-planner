@@ -1048,7 +1048,7 @@ const CAB_PRESETS = {
   multi: [['4 עמדות', {units:['tower'], spans:[]}], ['5 עמדות', {units:['tower', 'pulley'], spans:[SP(180, 1)]}], ['8 עמדות', {units:['tower', 'tower'], spans:[SP(180, 1)]}]]
 };
 const RSTORE = {rig:null, cab:null}, CSTORE = {};
-const cabPreset = (sub, k) => { const p = CAB_PRESETS[sub][k][1]; return {type:'cab', sub, wall: sub!=='multi', model:'steel', n:0, gaps:[], color: isCab() && RIG.color || '9005', acc:{}, back:{}, units:p.units.slice(), spans:structuredClone(p.spans)}; };
+const cabPreset = (sub, k) => { const p = CAB_PRESETS[sub][k][1]; return {type:'cab', sub, wall: sub!=='multi' && !cabWallConflict(p.units, p.spans), model:'steel', n:0, gaps:[], color: isCab() && RIG.color || '9005', acc:{}, back:{}, units:p.units.slice(), spans:structuredClone(p.spans)}; };
 const cabDefault = sub => cabPreset(sub || 'store', 0);
 const rigDefault = () => ({type:'wall', model:'steel', n:1, gaps:[], color:'9005', acc:{}, back:{}});
 const isCab = () => RIG.type==='cab';
@@ -1072,9 +1072,23 @@ function cabUnitDepth(){ const U = RIG.units, d = U.map(t=>t==='leg' ? null : t=
 const cabRearZ = i => { const d = cabUnitDepth(); return d[i]===d[i+1] ? -d[i] : null; };
 /* פולי שצמוד לקיר: מעוגן קיר, ואין בשורה כלוב או מגדל שמרחיקים את הקיר ל-81.85 */
 const pulleyAtWall = () => rowWall() && !RIG.units.some(t=>t==='cage' || t==='tower');
-/* יש ליחידה עמוד בקו האחורי (למדף או לחיבור אחורי)? כלוב ומגדל — תמיד; רגל — היא עצמה; פולי — כשיש לו קורה אחורית:
-   עומד חופשי, או מעוגן קיר שמדפים מתחברים אליו (למדף אין על מה להיתפס בלעדיה) */
-const cabHasRearPost = i => RIG.units[i]!=='pulley' || !pulleyAtWall() || [RIG.spans[i-1], RIG.spans[i]].some(s=>s && s.sh.length > 0);
+/* יש ליחידה עמוד בקו האחורי (למדף או לחיבור אחורי)? כלוב ומגדל — תמיד; רגל — היא עצמה; פולי — רק כשהוא עומד חופשי.
+   (רומן, 28/11/2026: "פולי מעוגן קיר אין קורה אחורית כי הפולי מוצמד לקיר אז גם לא ניתן מדפים מאחורה". גרסה 41 נתנה לפולי
+   מעוגן קיר קורה אחורית כשהיו לידו מדפים — בוטל.) */
+const cabHasRearPost = i => RIG.units[i]!=='pulley' || !pulleyAtWall();
+/* אפשר מדפים מאחור במרווח i? רק כששני הקצוות על אותו קו אחורי ולשניהם עמוד שם */
+const cabShelfOk = i => cabRearZ(i)!==null && cabHasRearPost(i) && cabHasRearPost(i+1);
+/* תכנון של פולי בלבד (בלי כלוב/מגדל) שיש בו מדפים, חיבור אחורי או רגל אחסון — אפשרי רק בעומד חופשי */
+const cabWallConflict = (units, spans) => !units.some(t=>t==='cage' || t==='tower') && (units.includes('leg') || spans.some(s=>s && (s.back || (Array.isArray(s.sh) && s.sh.length))));
+/* מעבר ל"מעוגן קיר": מה שנתפס בקורה האחורית יורד (מדפים, קרוס ממבר/לוגו מאחור, רגלי אחסון). מחזיר תיאור למשתמש, או '' */
+function cabToWall(){
+  if(!cabWallConflict(RIG.units, RIG.spans)) return '';
+  let sh = 0, bk = 0, lg = 0;
+  for(let i=RIG.units.length-1;i>=0;i--) if(RIG.units[i]==='leg' && RIG.units.length > 1){ RIG.units.splice(i, 1); const gone = RIG.spans.splice(Math.max(0, i - 1), 1)[0]; if(gone){ sh += (gone.sh||[]).length; if(gone.back) bk++; } if(RIG.ush) RIG.ush.splice(i, 1); delete RIG.at; lg++; }
+  RIG.spans.forEach(s=>{ sh += (s.sh||[]).length; s.sh = []; if(s.back){ bk++; s.back = null; } });
+  const out = []; if(sh) out.push(sh===1 ? 'מדף אחד' : sh + ' מדפים'); if(bk) out.push('החיבור האחורי'); if(lg) out.push(lg===1 ? 'רגל אחסון' : lg + ' רגלי אחסון');
+  return out.length ? 'מעוגן קיר: הפולי צמוד לקיר, בלי קורה אחורית — הוסרו ' + out.join(', ') : '';
+}
 const cabLegSpan = i => RIG.units[i]==='leg' || RIG.units[i+1]==='leg';   /* רגל אחסון (180) נמוכה מהחיבור העליון */
 const cabFrontSpan = i => hasFront(RIG.units[i]) && hasFront(RIG.units[i+1]);
 function cabNorm(){
@@ -1085,10 +1099,12 @@ function cabNorm(){
     RIG.wall = RIG.sub==='multi' ? false : RIG.wall!==false; }
   RIG.spans = (Array.isArray(RIG.spans) ? RIG.spans : []).slice(0, RIG.units.length - 1);
   while(RIG.spans.length < RIG.units.length - 1) RIG.spans.push(SP(cg ? 150 : 109, cg && 1));
+  /* תכנון שנשמר בגרסה 41 כמעוגן קיר עם מדפים בין הפולי: נשאר שלם, כעומד חופשי (שם יש לפולי קורה אחורית) */
+  if(!cg && RIG.wall && RIG.sub!=='multi' && cabWallConflict(RIG.units, RIG.spans)) RIG.wall = false;
   RIG.spans.forEach((s, i)=>{
     /* תכנון שנשמר לפני 28/11/2026: חיבור עליון אחד (top) — מתח הולך לחזית, קרוס ממבר ופלטת לוגו לאחור */
     if('top' in s){ if(s.top==='bar') s.front = 'bar'; else if(CAB_BACKS[s.top]) s.back = s.top; delete s.top; }
-    if(!WIDTHS.includes(s.w)) s.w = 109; s.sh = cabRearZ(i)===null ? [] : (Array.isArray(s.sh) ? s.sh : []).filter(t=>RTYPES[t]).slice(0, RSH_TIERS.length);
+    if(!WIDTHS.includes(s.w)) s.w = 109; s.sh = !cabShelfOk(i) ? [] : (Array.isArray(s.sh) ? s.sh : []).filter(t=>RTYPES[t]).slice(0, RSH_TIERS.length);
     s.front = s.front==='bar' && cabFrontSpan(i) ? 'bar' : null; });
   /* חיבור אחורי עליון — אחרי שכל המדפים נקבעו: רק בין שתי יחידות על אותו קו שלשתיהן עמוד אחורי, ולא ליד רגל (180, נמוכה ממנו) */
   RIG.spans.forEach((s, i)=>{
@@ -1109,7 +1125,7 @@ function cabLayout(){ cabNorm(); const U = []; let x = 0;
   return {U, ext:[-pad(U[0].t), x + pad(U[U.length-1].t)]}; }
 /* העמודים הקדמיים (לאביזר של קורה): כל עמוד פעם אחת */
 function rowFrontPosts(){ const out = []; cabLayout().U.forEach(u=>{ if(!hasFront(u.t)) return; out.push(u.x0); if(u.x1!==u.x0) out.push(u.x1); }); return out; }
-/* לאיזה פולי יש קורה אחורית (ST-TUP231, צמודה לגב הפולי): עומד חופשי — לכולם; מעוגן קיר — רק למי שמדפים מתחברים אליו */
+/* לאיזה פולי יש קורה אחורית (ST-TUP231, צמודה לגב הפולי): לכל פולי שאינו צמוד לקיר (עומד חופשי, או שורה מעוגנת שהקיר שלה מאחורי כלוב) */
 function cabRear(){ cabNorm(); const out = [];
   RIG.units.forEach((t, i)=>{ if(t==='pulley' && cabHasRearPost(i)) out.push(i); });
   return out; }
@@ -1478,14 +1494,14 @@ const cabFrontOpts = i => cabFrontSpan(i) ? [['', 'ללא'], ['bar', 'מתח']] 
 const cabBackOpts = i => cabLegSpan(i) || cabRearZ(i)===null || !cabHasRearPost(i) || !cabHasRearPost(i+1) ? [] : [['', 'ללא'], ['cm', 'קרוס ממבר ' + RIG.spans[i].w]].concat(RIG.spans[i].w===109 ? [['logo', 'פלטת לוגו']] : []);
 /* למה אין במרווח חיבור אחורי או מדפים — במילים, במקום שהאפשרות פשוט תיעלם */
 const cabBackWhy = i => cabRearZ(i)===null ? 'בין כלוב לפולי אין מדפים ואין חיבור מאחור: העומק שלהם שונה (כלוב 82 ס״מ, פולי 60). אפשר מתח מלפנים.'
-  : cabLegSpan(i) ? '' : !cabHasRearPost(i) || !cabHasRearPost(i+1) ? 'קרוס ממבר או פלטת לוגו מאחור — כשיש מדפים במרווח, או במערכת שעומדת חופשי. פולי מעוגן קיר מתברג ישר לקיר, בלי קורה אחורית.' : '';
+  : !cabHasRearPost(i) || !cabHasRearPost(i+1) ? 'פולי מעוגן קיר צמוד לקיר ומתברג ישר אליו, בלי קורה אחורית — לכן אין מאחור מדפים, קרוס ממבר או פלטת לוגו. לאחסון מאחור: "עומד חופשי".' : '';
 /* רשימת המדפים להוספה מאחור: תמונה, שם ומחיר. מדף הפלטות — מחיר המדף ועוד המפרידים */
 function rshAlist(w){
   return `<div class="alist">${Object.keys(RTYPES).map(t=>{ const sku = rshSku(t, w), u0 = unitPrice(sku), ps = rshSep(t, w) ? unitPrice('ST-PS') : 0, u = u0==null || ps==null ? null : u0 + rshSep(t, w)*ps;
     return `<button type="button" class="arow" data-sht="${t}">${D[sku] ? `<img alt="" src="${D[sku].img}">` : '<span class="noimg"></span>'}<span class="an">${esc(rshName(t, w))}</span><span class="ap">${u==null ? 'לפי הצעה' : fmtMoney(u)}</span></button>`; }).join('')}</div>`;
 }
 function rowShHtml(where, i){
-  if(where==='s' && cabRearZ(i)===null) return `<p class="rsh-no">${cabBackWhy(i)}</p>`;
+  if(where==='s' && !cabShelfOk(i)) return `<p class="rsh-no">${cabBackWhy(i)}</p>`;
   const w = where==='u' ? 109 : RIG.spans[i].w, l = rowShList(where, i), full = l.length >= RSH_TIERS.length, blk = where==='u' && ushBlocked(i);
   const add = blk ? '<p class="rsh-no">לא ניתן להוסיף מדף: בכלוב יש רצועות בטיחות.</p>' : full ? `<p class="rsh-no">מלא: עד ${RSH_TIERS.length} קומות.</p>` : rshAlist(w);
   const cur = l.length ? `<div class="rsh-cur">${l.map((t, k)=>`<span class="rsh-it">קומה ${k+1}: ${esc(RTYPES[t].short)}</span>`).join('')}<button type="button" class="rm" data-shrm>הסרת המדף העליון</button></div>` : '';
@@ -1500,7 +1516,7 @@ function popSpan(pos, i){
   openPop(pos, `מרווח ${i+1}: ${esc(unitOf(RIG.units[i])[2])} ← ${esc(unitOf(RIG.units[i+1])[2])}`,
     `<span class="plbl">רוחב</span>${popRow(W_OPTS, s.w, 'w')}`
     + (fr.length ? `<span class="plbl">מלפנים</span>${popRow(fr, s.front || '', 'front')}` : '')
-    + (bk.length ? `<span class="plbl">מאחור, למעלה</span>${popRow(bk, s.back || '', 'back')}` : cabRearZ(i)!==null && cabBackWhy(i) ? `<p class="rsh-no">${cabBackWhy(i)}</p>` : '')
+    + (bk.length ? `<span class="plbl">מאחור, למעלה</span>${popRow(bk, s.back || '', 'back')}` : cabShelfOk(i) && cabBackWhy(i) ? `<p class="rsh-no">${cabBackWhy(i)}</p>` : '')
     + rowShHtml('s', i), el=>{
     el.classList.add('apop');
     const again = () => { const a = V3.anchors.find(x=>x.kind==='span' && x.i===i); if(a) popSpan(a.pos, i); };
@@ -1522,10 +1538,10 @@ function popRowShelf(pos, where, i){
     wireRowSh(el, where, i, again); });
 }
 function popUnit(pos, i){ const u = unitOf(RIG.units[i]), pr = unitPrice(u[0]), rear = RIG.units[i]==='pulley' && cabRear().includes(i);
-  openPop(pos, `יחידה ${i+1}: ${u[1]}`, `<span class="plbl">${esc(u[0])} · ${pr==null ? 'לפי הצעה' : fmtMoney(pr)}</span>${rear ? `<span class="plbl">כולל קורה אחורית (ST-TUP231)${pulleyAtWall() ? ' — המדפים מתחברים אליה' : ' — הפולי עומד חופשי'}</span>` : RIG.units[i]==='pulley' ? '<span class="plbl">מתברג ישר לקיר, בלי קורה אחורית</span>' : ''}<div class="links">${RIG.units.length > 1 ? '<button type="button" class="rm" data-rmu>הסרת היחידה מהשורה</button>' : '<span class="plbl">יחידה אחרונה בשורה</span>'}</div>`, el=>{
+  openPop(pos, `יחידה ${i+1}: ${u[1]}`, `<span class="plbl">${esc(u[0])} · ${pr==null ? 'לפי הצעה' : fmtMoney(pr)}</span>${rear ? `<span class="plbl">כולל קורה אחורית (ST-TUP231)${rowWall() ? ' — הקיר מאחורי הכלוב, והפולי לא מגיע אליו' : ' — הפולי עומד חופשי'}</span>` : RIG.units[i]==='pulley' ? '<span class="plbl">מתברג ישר לקיר, בלי קורה אחורית</span>' : ''}<div class="links">${RIG.units.length > 1 ? '<button type="button" class="rm" data-rmu>הסרת היחידה מהשורה</button>' : '<span class="plbl">יחידה אחרונה בשורה</span>'}</div>`, el=>{
     const rb = el.querySelector('[data-rmu]'); if(rb) rb.onclick = ()=>cabRmUnit(i); });
 }
-const cabAddList = () => CAB_ADD[RIG.type==='cage' ? 'cage' : RIG.sub] || [];
+const cabAddList = () => (CAB_ADD[RIG.type==='cage' ? 'cage' : RIG.sub] || []).filter(t=>t!=='leg' || !pulleyAtWall());   /* לרגל אין במה להיתפס כשהפולי צמוד לקיר */
 function popUnitAdd(pos){
   const L = cabAddList(); if(L.length===1){ cabAddUnit(L[0]); return; }
   const rows = L.map(t=>{ const u = unitOf(t), pr = unitPrice(u[0]);
@@ -2215,7 +2231,7 @@ function build3D(quiet){
         else if(s.back==='logo') mdlPut('lp', group, cageMat, xa, 0, zr).userData.conn = 'logo';   /* קורת הלוגו של הכלוב: קורה עליונה + הפלטה */
         if(zr!==null) shelves(xa, s.w, s.sh, zr);
         anchors.push({g:group, p:[xa + L/2, CAB_TOP_Y + 12, 4], kind:'span', i});
-        if(zr!==null) anchors.push({g:group, p:[xa + L/2, 120, zr - 10], kind:'bsh', where:'s', i});   /* בין כלוב לפולי אין קו אחורי משותף */
+        if(cabShelfOk(i)) anchors.push({g:group, p:[xa + L/2, 120, zr - 10], kind:'bsh', where:'s', i});   /* בין כלוב לפולי אין קו אחורי משותף */
       });
       cabStations().forEach((s, j)=>{ [s[0], s[1]].forEach(X=>{ const pg = new THREE.Group(); pg.position.set(X, 0, 0); pg.userData.post = true; group.add(pg); PG[0].push(pg); });
         anchors.push({g:group, p:[(s[0] + s[1])/2, s[2]==='cage' ? 185 : 165, 10], kind:'acc', j, r:0}); });
@@ -2287,8 +2303,8 @@ function build3D(quiet){
     if(RIG.type==='wall' || (row && rowWall())){
       if(!V3.wallMat){ V3.wallMat = new THREE.MeshStandardMaterial({color:0xf1f3f5, roughness:1, metalness:0}); V3.wallMat.userData.rgb = [246,247,249]; V3.wallMat.color.convertSRGBToLinear(); }
       const WX = row ? cabLayout().ext[1] - 6.5 : SPAN;
-      /* הקיר בשורה: פולי מעוגן קיר — צמוד לפלטות הקצה שלו (z=-56.5), או לגב הקורה האחורית כשיש מדפים (z=-62.5); עם כלוב — מאחורי הכלוב */
-      const wz = !row ? -113.4 : !pulleyAtWall() ? -CAB_DEPTH - 22 : cabRear().length ? -PUL_DEPTH - 4 : -PUL_WALL - 1;
+      /* הקיר בשורה: פולי מעוגן קיר — צמוד לפלטות הקצה שלו (z=-56.5); עם כלוב — מאחורי הכלוב */
+      const wz = !row ? -113.4 : !pulleyAtWall() ? -CAB_DEPTH - 22 : -PUL_WALL - 1;
       const wall = new THREE.Mesh(new THREE.BoxGeometry(WX + 90, 285, 2), V3.wallMat); wall.position.set(WX/2, 142.5, wz); wall.userData.wall = true; wall.receiveShadow = true; wall.userData.nodim = true; group.add(wall);
     }
     if(!row) anchors.push({g:group, p:[SPAN + 30, 130, deep ? -RIG_DEPTH/2 : 0], kind: RIG.n < RIG_MAX ? 'station' : 'stmax'});
@@ -2529,7 +2545,7 @@ function renderRigUI(){
   $('rmodel').hidden = RIG.type==='wall' || (cb && RIG.sub==='multi');
   $('rmodel').setAttribute('aria-label', cb ? 'עיגון' : cg ? 'דגם הכלוב' : 'דגם הריג המעוגן לרצפה');
   $('rmodel').innerHTML = mopts.map(([k,n])=>`<button type="button" data-k="${k}" aria-pressed="${k===mcur}">${n}</button>`).join('');
-  $('rmodel').querySelectorAll('button').forEach(b=>b.onclick=()=>{ if(cb) RIG.wall = b.dataset.k==='wall'; else if(cg) RIG.cage = b.dataset.k; else RIG.model = b.dataset.k; render(); });
+  $('rmodel').querySelectorAll('button').forEach(b=>b.onclick=()=>{ if(cb){ const was = rowWall(); RIG.wall = b.dataset.k==='wall'; const m = RIG.wall && !was ? cabToWall() : ''; if(m){ render(); note(m, true); return; } } else if(cg) RIG.cage = b.dataset.k; else RIG.model = b.dataset.k; render(); });
   /* המונה: בריגים — תחנות; בכלובים — כלובים (כל כלוב נוסף עם מרווח 150 ומתח, כמו תחנה בריג). בכבלים מוסיפים יחידה. הכלוב והפולי בצבע המפעל */
   const cgEl = $('rcount').closest('.cg'); cgEl.hidden = cb; cgEl.querySelector('.cl').textContent = cg ? 'כלובים' : 'תחנות'; $('rcolorBtn').hidden = cg;   /* הכלוב בצבע המפעל; בכבלים — צבע קורות הפולי */
   $('rcount').replaceWith(Object.assign(cg
@@ -2560,7 +2576,7 @@ function renderRigUI(){
       return unit + `<li class="cs"><span class="chk">מרווח ${i+1}</span>${seg(i, 'w', W_OPTS.map(([w])=>[w, w]), s.w, `רוחב מרווח ${i+1}`)}`
         + (fr.length ? `<span class="chk">מלפנים</span>${seg(i, 'front', fr, s.front || '', `חיבור קדמי במרווח ${i+1}`)}` : '')
         + (bk.length ? `<span class="chk">מאחור</span>${seg(i, 'back', bk, s.back || '', `חיבור אחורי במרווח ${i+1}`)}` : '')
-        + (cabRearZ(i)===null ? `<span class="chk">${cabBackWhy(i)}</span>` : shCtl('s', i, s.sh, `הוספת מדף למרווח ${i+1}`) + (!bk.length && cabBackWhy(i) ? `<span class="chk">${cabBackWhy(i)}</span>` : '')) + '</li>'; }).join('') + '</ol>';
+        + (!cabShelfOk(i) ? `<span class="chk">${cabBackWhy(i)}</span>` : shCtl('s', i, s.sh, `הוספת מדף למרווח ${i+1}`) + (!bk.length && cabBackWhy(i) ? `<span class="chk">${cabBackWhy(i)}</span>` : '')) + '</li>'; }).join('') + '</ol>';
     const addRow = `<div class="row" style="margin:0 4px 14px"><span class="chk">＋ יחידה</span><div class="seg" role="group" aria-label="הוספת יחידה לשורה">${cabAddList().map(t=>`<button type="button" data-cadd="${t}" ${RIG.units.length >= CAB_MAX ? 'disabled' : ''}>${unitOf(t)[2]}</button>`).join('')}</div></div>`;
     const sub = cb ? CAB_SUBS.find(s=>s[0]===RIG.sub) : null;
     const pres = cb ? `<h3>התחלה מהירה</h3><p class="subhint">${esc(sub[2])}. בוחרים תצורה מוכנה, ומשנים אותה בהדמיה: ＋ מוסיף, לחיצה על "מרווח" משנה רוחב וחיבורים.</p><div class="presets" id="cabpresets">${CAB_PRESETS[RIG.sub].map((p, k)=>`<button type="button" data-preset="${k}">${esc(p[0])}</button>`).join('')}</div>` : '';
@@ -2577,7 +2593,7 @@ function renderRigUI(){
     box.querySelectorAll('[data-csh]').forEach(b=>b.onclick=()=>cabShelf(+b.dataset.csh, b.dataset.ct, b.dataset.cwh));
     box.querySelectorAll('[data-cshrm]').forEach(b=>b.onclick=()=>cabShelf(+b.dataset.cshrm, null, b.dataset.cwh));
     box.querySelectorAll('[data-cadd]').forEach(b=>b.onclick=()=>cabAddUnit(b.dataset.cadd));
-    box.querySelectorAll('[data-preset]').forEach(b=>b.onclick=()=>{ const k = +b.dataset.preset, wall = RIG.wall, sub = RIG.sub; RIG = cabPreset(sub, k); if(sub!=='multi') RIG.wall = wall && !RIG.spans.some(s=>s.back && !s.sh.length); render();   /* חיבור אחורי בלי מדפים (פלטת לוגו בין שני פולי) קיים רק בעומד חופשי */ note(`נטענה התצורה "${CAB_PRESETS[sub][k][0]}"`, true); });
+    box.querySelectorAll('[data-preset]').forEach(b=>b.onclick=()=>{ const k = +b.dataset.preset, wall = RIG.wall, sub = RIG.sub; RIG = cabPreset(sub, k); if(sub!=='multi') RIG.wall = wall && !cabWallConflict(RIG.units, RIG.spans); render();   /* מדפים או חיבור אחורי בין פולי — רק בעומד חופשי */ note(`נטענה התצורה "${CAB_PRESETS[sub][k][0]}"`, true); });
     const de = $('rowed'); if(de) de.ontoggle = ()=>{ ROW_OPEN = de.open; };
   }
   box.querySelectorAll('[data-gw]').forEach(b=>b.onclick=()=>{ RIG.gaps[+b.dataset.j] = +b.dataset.gw; render(); });
